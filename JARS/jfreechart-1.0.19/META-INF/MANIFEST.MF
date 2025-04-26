@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.2
+Created-By: 1.8.0_05-b13 (Oracle Corporation)
+Specification-Title: JFreeChart
+Specification-Version: 1.0.19
+Specification-Vendor: jfree.org
+Implementation-Title: JFreeChart
+Implementation-Version: 1.0.19
+Implementation-Vendor: jfree.org
+
