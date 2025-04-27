@@ -26,6 +26,7 @@ import com.opencsv.CSVReader;
 import java.awt.BorderLayout;
 import javax.swing.ImageIcon;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -501,8 +502,8 @@ public class User extends javax.swing.JFrame {
 
                 Row infoRow = sheet.createRow(3);
                 infoRow.createCell(0).setCellValue("Section:");
-                infoRow.createCell(2).setCellValue("Adviser:");
-                infoRow.createCell(4).setCellValue("School Year:");
+                infoRow.createCell(3).setCellValue("Adviser:");
+                infoRow.createCell(6).setCellValue("School Year:");
 
                 
                 Row header = sheet.createRow(5);
@@ -634,7 +635,8 @@ public class User extends javax.swing.JFrame {
                 workbook.write(out);
                 out.close();
                 workbook.close();
-
+                Desktop.getDesktop().open(file);
+                
                 JOptionPane.showMessageDialog(null, "Excel summary generated:\n" + file.getAbsolutePath());
             }
         } catch (Exception e) {
@@ -6401,7 +6403,7 @@ public class User extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) tableReport.getModel();
         model.setRowCount(0);
 
-        String query = "SELECT * FROM attendance_records WHERE 1=1";
+        String query = "SELECT * FROM attendance_records WHERE 1=1 ";
         List<Object> parameters = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -6413,7 +6415,7 @@ public class User extends javax.swing.JFrame {
             parameters.add(fromDate);
             parameters.add(endDate);
         }
-        
+
         if (cmbGender2.getSelectedItem() != null
             && !cmbGender2.getSelectedItem().toString().equals("SELECT ALL SEX")) {
             query += " AND gender = ?";
@@ -6435,6 +6437,9 @@ public class User extends javax.swing.JFrame {
             query += " AND status = ?";
             parameters.add(txtStatus.getText().trim());
         }
+
+        // >>> ITO ANG INADAGDAG KO PARA SA SORTING
+        query += " ORDER BY gender DESC, students_name ASC";
 
         try {
             con = Prototype.getConnection();

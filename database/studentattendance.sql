@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:4306
--- Generation Time: Apr 27, 2025 at 01:41 PM
+-- Generation Time: Apr 27, 2025 at 06:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -37,6 +37,56 @@ CREATE TABLE `attendance_records` (
   `time_out` time DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `attendance_records`
+--
+
+INSERT INTO `attendance_records` (`attendance_id`, `students_name`, `gender`, `class_id`, `date`, `time_in`, `time_out`, `status`) VALUES
+(967, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-01', '22:51:04', '22:51:05', 'Present'),
+(968, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-01', NULL, NULL, 'Absent'),
+(969, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-02', '22:51:04', '22:51:05', 'Present'),
+(970, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-02', NULL, NULL, 'Absent'),
+(971, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-03', '22:51:04', '22:51:05', 'Present'),
+(972, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-03', NULL, NULL, 'Absent'),
+(973, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-04', '22:51:04', '22:51:05', 'Present'),
+(974, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-04', NULL, NULL, 'Absent'),
+(975, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-07', '22:51:04', '22:51:05', 'Present'),
+(976, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-07', NULL, NULL, 'Absent'),
+(977, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-08', '22:51:04', '22:51:05', 'Present'),
+(978, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-08', NULL, NULL, 'Absent'),
+(979, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-09', '22:51:04', '22:51:05', 'Present'),
+(980, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-09', NULL, NULL, 'Absent'),
+(981, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-10', '22:51:04', '22:51:05', 'Present'),
+(982, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-10', NULL, NULL, 'Absent'),
+(983, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-11', '22:51:04', '22:51:05', 'Present'),
+(984, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-11', NULL, NULL, 'Absent'),
+(985, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-14', '22:51:04', '22:51:05', 'Present'),
+(986, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-14', NULL, NULL, 'Absent'),
+(987, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-15', '22:51:04', '22:51:05', 'Present'),
+(988, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-15', NULL, NULL, 'Absent'),
+(989, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-16', '22:51:04', '22:51:05', 'Present'),
+(990, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-16', NULL, NULL, 'Absent'),
+(991, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-17', '22:51:04', '22:51:05', 'Present'),
+(992, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-17', NULL, NULL, 'Absent'),
+(993, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-18', '22:51:04', '22:51:05', 'Present'),
+(994, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-18', NULL, NULL, 'Absent'),
+(995, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-21', '22:51:04', '22:51:05', 'Present'),
+(996, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-21', NULL, NULL, 'Absent'),
+(997, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-22', '22:51:04', '22:51:05', 'Present'),
+(998, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-22', NULL, NULL, 'Absent'),
+(999, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-23', '22:51:04', '22:51:05', 'Present'),
+(1000, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-23', NULL, NULL, 'Absent'),
+(1001, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-24', '22:51:04', '22:51:05', 'Present'),
+(1002, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-24', NULL, NULL, 'Absent'),
+(1003, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-25', '22:51:04', '22:51:05', 'Present'),
+(1004, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-25', NULL, NULL, 'Absent'),
+(1005, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-28', '22:51:04', '22:51:05', 'Present'),
+(1006, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-28', NULL, NULL, 'Absent'),
+(1007, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-29', '22:51:04', '22:51:05', 'Present'),
+(1008, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-29', NULL, NULL, 'Absent'),
+(1009, 'ROB, RONNEL', 'MALE ', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-30', '22:51:04', '22:51:05', 'Present'),
+(1010, 'CHAN, MARIE', 'FEMALE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-30', NULL, NULL, 'Absent');
 
 -- --------------------------------------------------------
 
@@ -166,6 +216,13 @@ CREATE TABLE `sms_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `sms_logs`
+--
+
+INSERT INTO `sms_logs` (`id`, `parent_number`, `student_name`, `message`, `status`, `created_at`) VALUES
+(114, '639000000000', 'ROB, RONNEL', 'Hello, your child ROB, RONNEL has left the school.', 'sent', '2025-04-27 14:51:06');
+
 -- --------------------------------------------------------
 
 --
@@ -188,7 +245,7 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`students_id`, `students_name`, `gender`, `class_id`, `parent_contact_number`, `qr_code_data`, `status`) VALUES
 (10614, 'ROB, RONNEL', 'MALE ', 28, '639000000000', 'ROB, RONNEL', 'Active'),
-(10676, 'CHAN, MARIE', 'FEMALE', 28, '639000000000', NULL, 'Active');
+(10677, 'CHAN, MARIE', 'FEMALE', 28, '639000000000', NULL, 'Active');
 
 -- --------------------------------------------------------
 
@@ -314,7 +371,7 @@ ALTER TABLE `teachers`
 -- AUTO_INCREMENT for table `attendance_records`
 --
 ALTER TABLE `attendance_records`
-  MODIFY `attendance_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=921;
+  MODIFY `attendance_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1011;
 
 --
 -- AUTO_INCREMENT for table `classes`
@@ -338,7 +395,7 @@ ALTER TABLE `class_teacher`
 -- AUTO_INCREMENT for table `inactive_students`
 --
 ALTER TABLE `inactive_students`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `login_table`
@@ -356,13 +413,13 @@ ALTER TABLE `qrcode`
 -- AUTO_INCREMENT for table `sms_logs`
 --
 ALTER TABLE `sms_logs`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `students_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10677;
+  MODIFY `students_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10678;
 
 --
 -- AUTO_INCREMENT for table `subject`
