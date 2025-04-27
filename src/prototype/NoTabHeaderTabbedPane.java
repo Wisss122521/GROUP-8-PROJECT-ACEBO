@@ -18,12 +18,12 @@ public class NoTabHeaderTabbedPane extends JTabbedPane {
         setUI(new BasicTabbedPaneUI() {
             @Override
             protected int calculateTabAreaHeight(int tabPlacement, int runCount, int maxTabHeight) {
-                return 0; // Hides tab headers
+                return 0;
             }
 
             @Override
             protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex) {
-                // Prevents drawing tab headers
+                
             }
         });
     }

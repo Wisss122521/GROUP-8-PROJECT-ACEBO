@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:4306
--- Generation Time: Apr 26, 2025 at 07:58 AM
+-- Generation Time: Apr 27, 2025 at 01:41 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -30,20 +30,13 @@ SET time_zone = "+00:00";
 CREATE TABLE `attendance_records` (
   `attendance_id` int(255) NOT NULL,
   `students_name` varchar(255) NOT NULL,
+  `gender` varchar(255) DEFAULT NULL,
   `class_id` varchar(255) NOT NULL,
   `date` date DEFAULT NULL,
   `time_in` time DEFAULT NULL,
   `time_out` time DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `attendance_records`
---
-
-INSERT INTO `attendance_records` (`attendance_id`, `students_name`, `class_id`, `date`, `time_in`, `time_out`, `status`) VALUES
-(867, 'CHAN, MARIE', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-26', NULL, NULL, 'Absent'),
-(868, 'ROB, RONNEL', 'GRADE 1 - MANGO - SY. 2024-2025', '2025-04-26', '03:33:42', '03:33:55', 'Present');
 
 -- --------------------------------------------------------
 
@@ -111,18 +104,12 @@ CREATE TABLE `inactive_students` (
   `id` int(255) NOT NULL,
   `students_id` int(255) DEFAULT NULL,
   `students_name` varchar(255) DEFAULT NULL,
+  `gender` varchar(255) DEFAULT NULL,
   `class_name` varchar(255) DEFAULT NULL,
   `parent_contact_number` varchar(255) DEFAULT NULL,
   `qr_code_data` varchar(255) DEFAULT NULL,
   `status` varchar(50) DEFAULT 'Inactive'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `inactive_students`
---
-
-INSERT INTO `inactive_students` (`id`, `students_id`, `students_name`, `class_name`, `parent_contact_number`, `qr_code_data`, `status`) VALUES
-(15, 10613, 'PANIS, ACER', 'GRADE 1 - MANGO - SY. 2024-2025', '639000000000', 'PANIS, ACER', 'Inactive');
 
 -- --------------------------------------------------------
 
@@ -154,21 +141,6 @@ INSERT INTO `login_table` (`user_id`, `firstname`, `middlename`, `lastname`, `ge
 -- --------------------------------------------------------
 
 --
--- Table structure for table `notification`
---
-
-CREATE TABLE `notification` (
-  `notification_id` int(255) NOT NULL,
-  `student_id` int(255) NOT NULL,
-  `message` varchar(255) NOT NULL,
-  `notification_type` varchar(255) NOT NULL,
-  `status` varchar(255) NOT NULL DEFAULT 'unread',
-  `created_at` timestamp(6) NOT NULL DEFAULT current_timestamp(6)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `qrcode`
 --
 
@@ -178,14 +150,6 @@ CREATE TABLE `qrcode` (
   `qrcodefilepath` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `qrcode`
---
-
-INSERT INTO `qrcode` (`qrcodeid`, `qrcodedata`, `qrcodefilepath`, `created_at`) VALUES
-(196, 'PANIS, ACER', 'C:\\Users\\Wisss\\Documents\\qr_codes\\PANIS, ACER_QR.png', '2025-04-25 19:31:45'),
-(197, 'ROB, RONNEL', 'C:\\Users\\Wisss\\Documents\\qr_codes\\ROB, RONNEL_QR.png', '2025-04-25 19:33:34');
 
 -- --------------------------------------------------------
 
@@ -202,15 +166,6 @@ CREATE TABLE `sms_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `sms_logs`
---
-
-INSERT INTO `sms_logs` (`id`, `parent_number`, `student_name`, `message`, `status`, `created_at`) VALUES
-(89, '639217467275', 'Manual', 'Testing', 'sent', '2025-04-25 19:32:22'),
-(90, '639000000000', 'ROB, RONNEL', 'Hello, your child ROB, RONNEL has arrived at school.', 'sent', '2025-04-25 19:33:42'),
-(91, '639000000000', 'ROB, RONNEL', 'Hello, your child ROB, RONNEL has left the school.', 'sent', '2025-04-25 19:33:55');
-
 -- --------------------------------------------------------
 
 --
@@ -220,6 +175,7 @@ INSERT INTO `sms_logs` (`id`, `parent_number`, `student_name`, `message`, `statu
 CREATE TABLE `students` (
   `students_id` int(255) NOT NULL,
   `students_name` varchar(255) NOT NULL,
+  `gender` varchar(255) DEFAULT NULL,
   `class_id` int(255) NOT NULL,
   `parent_contact_number` varchar(255) DEFAULT NULL,
   `qr_code_data` varchar(255) DEFAULT NULL,
@@ -230,9 +186,9 @@ CREATE TABLE `students` (
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`students_id`, `students_name`, `class_id`, `parent_contact_number`, `qr_code_data`, `status`) VALUES
-(10612, 'CHAN, MARIE', 28, '639000000000', NULL, 'Active'),
-(10614, 'ROB, RONNEL', 28, '639000000000', 'ROB, RONNEL', 'Active');
+INSERT INTO `students` (`students_id`, `students_name`, `gender`, `class_id`, `parent_contact_number`, `qr_code_data`, `status`) VALUES
+(10614, 'ROB, RONNEL', 'MALE ', 28, '639000000000', 'ROB, RONNEL', 'Active'),
+(10676, 'CHAN, MARIE', 'FEMALE', 28, '639000000000', NULL, 'Active');
 
 -- --------------------------------------------------------
 
@@ -260,15 +216,16 @@ INSERT INTO `subject` (`subject_id`, `subject_name`) VALUES
 
 CREATE TABLE `teachers` (
   `teacher_id` int(255) NOT NULL,
-  `teacher_name` varchar(255) NOT NULL
+  `teacher_name` varchar(255) NOT NULL,
+  `gender` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `teachers`
 --
 
-INSERT INTO `teachers` (`teacher_id`, `teacher_name`) VALUES
-(26, 'Santos, Maria A.');
+INSERT INTO `teachers` (`teacher_id`, `teacher_name`, `gender`) VALUES
+(26, 'Santos, Maria A.', 'MALE');
 
 --
 -- Indexes for dumped tables
@@ -319,13 +276,6 @@ ALTER TABLE `login_table`
   ADD KEY `username_3` (`username`);
 
 --
--- Indexes for table `notification`
---
-ALTER TABLE `notification`
-  ADD PRIMARY KEY (`notification_id`),
-  ADD KEY `student_notification` (`student_id`);
-
---
 -- Indexes for table `qrcode`
 --
 ALTER TABLE `qrcode`
@@ -364,7 +314,7 @@ ALTER TABLE `teachers`
 -- AUTO_INCREMENT for table `attendance_records`
 --
 ALTER TABLE `attendance_records`
-  MODIFY `attendance_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=869;
+  MODIFY `attendance_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=921;
 
 --
 -- AUTO_INCREMENT for table `classes`
@@ -388,7 +338,7 @@ ALTER TABLE `class_teacher`
 -- AUTO_INCREMENT for table `inactive_students`
 --
 ALTER TABLE `inactive_students`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `login_table`
@@ -397,28 +347,22 @@ ALTER TABLE `login_table`
   MODIFY `user_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
--- AUTO_INCREMENT for table `notification`
---
-ALTER TABLE `notification`
-  MODIFY `notification_id` int(255) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `qrcode`
 --
 ALTER TABLE `qrcode`
-  MODIFY `qrcodeid` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=198;
+  MODIFY `qrcodeid` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=205;
 
 --
 -- AUTO_INCREMENT for table `sms_logs`
 --
 ALTER TABLE `sms_logs`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `students_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10615;
+  MODIFY `students_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10677;
 
 --
 -- AUTO_INCREMENT for table `subject`
@@ -430,7 +374,7 @@ ALTER TABLE `subject`
 -- AUTO_INCREMENT for table `teachers`
 --
 ALTER TABLE `teachers`
-  MODIFY `teacher_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `teacher_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- Constraints for dumped tables
@@ -449,12 +393,6 @@ ALTER TABLE `class_subject`
 ALTER TABLE `class_teacher`
   ADD CONSTRAINT `class_classes_id` FOREIGN KEY (`class_id`) REFERENCES `classes` (`class_id`),
   ADD CONSTRAINT `class_teacher_id` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`teacher_id`);
-
---
--- Constraints for table `notification`
---
-ALTER TABLE `notification`
-  ADD CONSTRAINT `student_notification` FOREIGN KEY (`student_id`) REFERENCES `students` (`students_id`);
 
 --
 -- Constraints for table `students`

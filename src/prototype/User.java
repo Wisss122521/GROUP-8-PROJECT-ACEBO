@@ -35,6 +35,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -47,6 +48,7 @@ import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -67,6 +69,10 @@ import javax.swing.table.TableRowSorter;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Picture;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -312,13 +318,14 @@ public class User extends javax.swing.JFrame {
         }
 
         try (Connection con = Prototype.getConnection()) {
-            String query = "SELECT students_name, parent_contact_number FROM students WHERE LOWER(qr_code_data) = LOWER(?)";
+            String query = "SELECT students_name, gender, parent_contact_number FROM students WHERE LOWER(qr_code_data) = LOWER(?)";
             try (PreparedStatement pst = con.prepareStatement(query)) {
                 pst.setString(1, scannedQR.trim());
                 ResultSet rs = pst.executeQuery();
 
                 if (rs.next()) {
                     String studentName = rs.getString("students_name");
+                    String gender = rs.getString("gender");
                     String parentNumber = rs.getString("parent_contact_number");
                     lblStatus.setText("QR Code Scanned!");
 
@@ -333,9 +340,9 @@ public class User extends javax.swing.JFrame {
                         if (tableStudentName.equalsIgnoreCase(studentName)) {
                             foundInTable = true;
 
-                            model.setValueAt(todayDate, i, 2);
-                            model.setValueAt(currentTime, i, 3);
-                            model.setValueAt("Present", i, 5);
+                            model.setValueAt(todayDate, i, 3);
+                            model.setValueAt(currentTime, i, 4);
+                            model.setValueAt("Present", i, 6);
 
                             sendSmsTimeIn(parentNumber, studentName);
                             break;
@@ -388,30 +395,40 @@ public class User extends javax.swing.JFrame {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             SimpleDateFormat displayFormat = new SimpleDateFormat("MMMM dd, yyyy");
 
+            
             Map<String, Map<String, String>> attendanceMap = new LinkedHashMap<>();
+            Map<String, String> genderMap = new HashMap<>();
             Set<String> dateSet = new TreeSet<>();
 
             for (int i = 0; i < table.getRowCount(); i++) {
-                Object nameObj = table.getValueAt(i, 0);
-                Object dateObjRaw = table.getValueAt(i, 2);
-                Object statusObj = table.getValueAt(i, 5);
+                Object nameObj = table.getValueAt(i, 0);    
+                Object genderObj = table.getValueAt(i, 1);  
+                Object dateObjRaw = table.getValueAt(i, 3); 
+                Object statusObj = table.getValueAt(i, 6);  
 
                 if (nameObj == null || dateObjRaw == null || statusObj == null) {
                     continue;
                 }
 
                 String name = nameObj.toString();
+                String gender = genderObj != null ? genderObj.toString() : "";
                 String dateStr = dateObjRaw.toString();
                 String status = statusObj.toString();
 
-                java.util.Date dateObj = stripTime(sdf.parse(dateStr));
-                if (!dateObj.before(fromDate) && !dateObj.after(toDate)) {
-                    dateSet.add(dateStr);
-                    attendanceMap.putIfAbsent(name, new HashMap<>());
-                    attendanceMap.get(name).put(dateStr, status);
+                try {
+                    java.util.Date dateObj = stripTime(sdf.parse(dateStr));
+                    if (!dateObj.before(fromDate) && !dateObj.after(toDate)) {
+                        dateSet.add(dateStr);
+                        attendanceMap.putIfAbsent(name, new HashMap<>());
+                        attendanceMap.get(name).put(dateStr, status);
+                        genderMap.putIfAbsent(name, gender); 
+                    }
+                } catch (ParseException e) {
+                    continue;
                 }
             }
 
+           
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Select folder to save Excel file");
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -419,7 +436,6 @@ public class User extends javax.swing.JFrame {
 
             if (result == JFileChooser.APPROVE_OPTION) {
                 File folder = fileChooser.getSelectedFile();
-
                 SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd_HHmm");
                 String timestamp = timestampFormat.format(new java.util.Date());
                 String filePath = folder.getAbsolutePath() + File.separator + "Student_Attendance_Summary_" + timestamp + ".xlsx";
@@ -436,9 +452,6 @@ public class User extends javax.swing.JFrame {
                 boldCenterStyle.setFont(boldFont);
                 boldCenterStyle.setAlignment(HorizontalAlignment.CENTER);
 
-                CellStyle boldRowStyle = workbook.createCellStyle();
-                boldRowStyle.setFont(boldFont);
-
                 CellStyle borderedStyle = workbook.createCellStyle();
                 borderedStyle.setBorderTop(BorderStyle.THIN);
                 borderedStyle.setBorderBottom(BorderStyle.THIN);
@@ -451,7 +464,22 @@ public class User extends javax.swing.JFrame {
                 wrappedHeaderStyle.setAlignment(HorizontalAlignment.CENTER);
                 wrappedHeaderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-                int totalColumns = dateSet.size() + 3;
+                int totalColumns = dateSet.size() + 4; 
+                InputStream logoInput = new FileInputStream("C:\\Users\\Wisss\\Documents\\NetBeansProjects\\StudAttSystem\\src\\images\\header\\logo school.png");
+                byte[] bytes = logoInput.readAllBytes();
+                int pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+                logoInput.close();
+
+                CreationHelper helper = workbook.getCreationHelper();
+                Drawing<?> drawing = sheet.createDrawingPatriarch();
+                ClientAnchor anchor = helper.createClientAnchor();
+                anchor.setCol1(4);
+                anchor.setRow1(0);
+                anchor.setCol2(1);
+                anchor.setRow2(3);
+
+                Picture pict = drawing.createPicture(anchor, pictureIdx);
+                pict.resize(1.0); 
 
                 Row schoolRow = sheet.createRow(0);
                 Cell schoolCell = schoolRow.createCell(0);
@@ -476,14 +504,17 @@ public class User extends javax.swing.JFrame {
                 infoRow.createCell(2).setCellValue("Adviser:");
                 infoRow.createCell(4).setCellValue("School Year:");
 
-                sheet.createRow(4);
-
+                
                 Row header = sheet.createRow(5);
                 int col = 0;
 
                 Cell nameHeader = header.createCell(col++);
                 nameHeader.setCellValue("Student Name");
                 nameHeader.setCellStyle(wrappedHeaderStyle);
+
+                Cell genderHeader = header.createCell(col++);
+                genderHeader.setCellValue("Gender");
+                genderHeader.setCellStyle(wrappedHeaderStyle);
 
                 for (String date : dateSet) {
                     LocalDate parsed = LocalDate.parse(date);
@@ -495,13 +526,14 @@ public class User extends javax.swing.JFrame {
 
                 String[] extras = {"Present", "Absent"};
                 for (String extra : extras) {
-                    Cell cell = header.createCell(col++);
-                    cell.setCellValue(extra);
-                    cell.setCellStyle(wrappedHeaderStyle);
+                    Cell extraHeader = header.createCell(col++);
+                    extraHeader.setCellValue(extra);
+                    extraHeader.setCellStyle(wrappedHeaderStyle);
                 }
 
+                
                 int rowNum = 6;
-                int grandTotalPresent = 0, grandTotalAbsent = 0, grandTotalLate = 0;
+                int grandTotalPresent = 0, grandTotalAbsent = 0;
 
                 for (String name : attendanceMap.keySet()) {
                     Row row = sheet.createRow(rowNum++);
@@ -510,9 +542,17 @@ public class User extends javax.swing.JFrame {
                     int present = 0, absent = 0;
                     col = 0;
 
+                    
                     Cell nameCell = row.createCell(col++);
                     nameCell.setCellValue(name);
                     nameCell.setCellStyle(borderedStyle);
+
+                    
+                    String gender = genderMap.getOrDefault(name, "");
+                    Cell genderCell = row.createCell(col++);
+                    genderCell.setCellValue(gender);
+                    genderCell.setCellStyle(borderedStyle);
+
 
                     for (String date : dateSet) {
                         String status = dailyStatus.getOrDefault(date, "Absent");
@@ -530,9 +570,9 @@ public class User extends javax.swing.JFrame {
                                 break;
                         }
 
-                        Cell cell = row.createCell(col++);
-                        cell.setCellValue(symbol);
-                        cell.setCellStyle(borderedStyle);
+                        Cell statusCell = row.createCell(col++);
+                        statusCell.setCellValue(symbol);
+                        statusCell.setCellStyle(borderedStyle);
                     }
 
                     Cell presentCell = row.createCell(col++);
@@ -543,20 +583,20 @@ public class User extends javax.swing.JFrame {
                     absentCell.setCellValue(absent);
                     absentCell.setCellStyle(borderedStyle);
 
-                    Cell lateCell = row.createCell(col++);
-                    lateCell.setCellStyle(borderedStyle);
-
                     grandTotalPresent += present;
                     grandTotalAbsent += absent;
                 }
 
+               
                 Row totalRow = sheet.createRow(rowNum++);
                 col = 0;
 
                 Cell totalLabel = totalRow.createCell(col++);
                 totalLabel.setCellValue("TOTAL ATTENDANCE");
-                totalLabel.setCellStyle(boldRowStyle);
                 totalLabel.setCellStyle(borderedStyle);
+
+                Cell emptyGender = totalRow.createCell(col++);
+                emptyGender.setCellStyle(borderedStyle);
 
                 for (int i = 0; i < dateSet.size(); i++) {
                     Cell filler = totalRow.createCell(col++);
@@ -571,20 +611,24 @@ public class User extends javax.swing.JFrame {
                 totalAbsent.setCellValue(grandTotalAbsent);
                 totalAbsent.setCellStyle(borderedStyle);
 
+                
                 Row totalStudentsRow = sheet.createRow(rowNum++);
-                totalStudentsRow.createCell(0).setCellValue("TOTAL STUDENTS");
-                totalStudentsRow.createCell(1).setCellValue(attendanceMap.size());
-                totalStudentsRow.getCell(0).setCellStyle(borderedStyle);
-                totalStudentsRow.getCell(1).setCellStyle(borderedStyle);
+                Cell studentLabel = totalStudentsRow.createCell(0);
+                studentLabel.setCellValue("TOTAL STUDENTS");
+                studentLabel.setCellStyle(borderedStyle);
 
+                Cell studentCount = totalStudentsRow.createCell(1);
+                studentCount.setCellValue(attendanceMap.size());
+                studentCount.setCellStyle(borderedStyle);
+
+                
                 Row legendRow = sheet.createRow(rowNum++);
                 legendRow.createCell(0).setCellValue("Symbol: / = Present   x = Absent");
 
+                
                 for (int i = 0; i < header.getLastCellNum(); i++) {
                     sheet.autoSizeColumn(i);
                 }
-
-                header.setHeightInPoints(40);
 
                 FileOutputStream out = new FileOutputStream(file);
                 workbook.write(out);
@@ -636,8 +680,9 @@ public class User extends javax.swing.JFrame {
                     }
 
                     String studentName = data[0].trim();
-                    String className = data[1].trim();
-                    String parentNumber = data.length > 2 ? data[2].trim() : "";
+                    String gender = data[1].trim();
+                    String className = data[2].trim();
+                    String parentNumber = data.length > 2 ? data[3].trim() : "";
 
                     int classId = -1;
                     String classQuery = "SELECT class_id FROM classes WHERE class_name = ?";
@@ -653,11 +698,12 @@ public class User extends javax.swing.JFrame {
                         }
                     }
 
-                    String insert = "INSERT INTO students (students_name, class_id, parent_contact_number) VALUES (?, ?, ?)";
+                    String insert = "INSERT INTO students (students_name, gender, class_id, parent_contact_number) VALUES (?, ?, ?, ?)";
                     try (PreparedStatement pstmt = con.prepareStatement(insert)) {
                         pstmt.setString(1, studentName);
-                        pstmt.setInt(2, classId);
-                        pstmt.setString(3, parentNumber);
+                        pstmt.setString(2, gender);
+                        pstmt.setInt(3, classId);
+                        pstmt.setString(4, parentNumber);
                         pstmt.executeUpdate();
                     }
                 }
@@ -683,10 +729,10 @@ public class User extends javax.swing.JFrame {
     public void loadStudentsWithQR() {
         try {
             Connection con = Prototype.getConnection();
-            String query = "SELECT s.students_id, s.students_name, c.class_name, s.parent_contact_number, s.qr_code_data, s.status "
+            String query = "SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number, s.qr_code_data, s.status "
                     + "FROM students s "
                     + "JOIN classes c ON s.class_id = c.class_id "
-                    + "WHERE s.qr_code_data IS NOT NULL AND s.qr_code_data != '' ORDER BY s.students_name ASC";
+                    + "WHERE s.qr_code_data IS NOT NULL AND s.qr_code_data != '' ORDER BY s.gender DESC, s.students_name ASC";
 
             PreparedStatement pst = con.prepareStatement(query);
             ResultSet rs = pst.executeQuery();
@@ -698,6 +744,7 @@ public class User extends javax.swing.JFrame {
                 model.addRow(new Object[]{
                     rs.getInt("students_id"),
                     rs.getString("students_name"),
+                    rs.getString("gender"),
                     rs.getString("class_name"),
                     rs.getString("parent_contact_number"),
                     rs.getString("qr_code_data"),
@@ -716,10 +763,10 @@ public class User extends javax.swing.JFrame {
     public void loadStudentsWithoutQR() {
         try {
             Connection con = Prototype.getConnection();
-            String query = "SELECT s.students_id, s.students_name, c.class_name, s.parent_contact_number, s.qr_code_data, s.status "
+            String query = "SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number, s.qr_code_data, s.status "
                     + "FROM students s "
                     + "JOIN classes c ON s.class_id = c.class_id "
-                    + "WHERE s.qr_code_data IS NULL OR s.qr_code_data = '' ORDER BY s.students_name ASC";
+                    + "WHERE s.qr_code_data IS NULL OR s.qr_code_data = '' ORDER BY s.gender DESC, s.students_name ASC";
 
             PreparedStatement pst = con.prepareStatement(query);
             ResultSet rs = pst.executeQuery();
@@ -731,6 +778,7 @@ public class User extends javax.swing.JFrame {
                 model.addRow(new Object[]{
                     rs.getInt("students_id"),
                     rs.getString("students_name"),
+                    rs.getString("gender"),
                     rs.getString("class_name"),
                     rs.getString("parent_contact_number"),
                     rs.getString("qr_code_data"),
@@ -862,30 +910,6 @@ public class User extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, scrollPane, "Terms and Conditions", JOptionPane.INFORMATION_MESSAGE);
     }
 
-//    private void loadAttendanceDataToOverall() {
-//        DefaultTableModel model = (DefaultTableModel) tableOverallAttendance.getModel();
-//        model.setRowCount(0); 
-//
-//        try {
-//            con = Prototype.getConnection();
-//            PreparedStatement pst = con.prepareStatement("SELECT * FROM attendance_records");
-//            ResultSet rs = pst.executeQuery();
-//
-//            while (rs.next()) {
-//                String studentName = rs.getString("students_name");
-//                String classId = rs.getString("class_id");
-//                String date = rs.getString("date");
-//                String timeIn = rs.getString("time_in");
-//                String timeOut = rs.getString("time_out");
-//                String status = rs.getString("status");
-//
-//                model.addRow(new Object[]{studentName, classId, date, timeIn, timeOut, status});
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
     public String getClassNameForId(int classId) {
         String query = "SELECT class_name FROM classes WHERE class_id = ?";
         try (Connection con = Prototype.getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
@@ -989,7 +1013,7 @@ public class User extends javax.swing.JFrame {
 
     public void loadClassToReports() {
         cboxClassReports.removeAllItems();
-        cboxClassReports.addItem("Select All Classes");
+        cboxClassReports.addItem("SELECT ALL CLASSES");
 
         String query = "SELECT * FROM classes ORDER BY class_name ASC";
 
@@ -1328,18 +1352,20 @@ public class User extends javax.swing.JFrame {
 
         try {
             con = Prototype.getConnection();
-            PreparedStatement pst = con.prepareStatement("SELECT * FROM attendance_records ORDER BY students_name ASC");
+            PreparedStatement pst = con.prepareStatement("SELECT * FROM attendance_records ORDER BY gender DESC, students_name ASC");
             ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
                 String studentName = rs.getString("students_name");
+                
                 String classId = rs.getString("class_id");
+                String gender = rs.getString("gender");
                 String date = rs.getString("date");
                 String timeIn = rs.getString("time_in");
                 String timeOut = rs.getString("time_out");
                 String status = rs.getString("status");
 
-                model.addRow(new Object[]{studentName, classId, date, timeIn, timeOut, status});
+                model.addRow(new Object[]{studentName, gender, classId, date, timeIn, timeOut, status});
             }
 
         } catch (Exception e) {
@@ -1371,8 +1397,8 @@ public class User extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) tableDropout.getModel();
         model.setRowCount(0);
 
-        String query = "SELECT students_id, students_name, class_name, "
-                + "parent_contact_number, qr_code_data, status FROM inactive_students ORDER BY students_id DESC";
+        String query = "SELECT students_id, students_name, gender, class_name, "
+                + "parent_contact_number, qr_code_data, status FROM inactive_students ORDER BY gender DESC, students_name ASC";
 
         try (
                 Connection con = Prototype.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
@@ -1381,6 +1407,7 @@ public class User extends javax.swing.JFrame {
                 Object[] row = {
                     rs.getInt("students_id"),
                     rs.getString("students_name"),
+                    rs.getString("gender"),
                     rs.getString("class_name"),
                     rs.getString("parent_contact_number"),
                     rs.getString("qr_code_data"),
@@ -1428,9 +1455,9 @@ public class User extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) tableStudent.getModel();
         model.setRowCount(0);
 
-        String query = "SELECT s.students_id, s.students_name, c.class_name, "
+        String query = "SELECT s.students_id, s.students_name, s.gender, c.class_name, "
                 + "s.parent_contact_number, s.qr_code_data, s.status FROM students s "
-                + "JOIN classes c ON s.class_id = c.class_id ORDER BY students_name ASC";
+                + "JOIN classes c ON s.class_id = c.class_id ORDER BY gender DESC, students_name ASC";
 
         try (
                 Connection con = Prototype.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
@@ -1439,6 +1466,7 @@ public class User extends javax.swing.JFrame {
                 Object[] row = {
                     rs.getInt("students_id"),
                     rs.getString("students_name"),
+                    rs.getString("gender"),
                     rs.getString("class_name"),
                     rs.getString("parent_contact_number"),
                     rs.getString("qr_code_data"),
@@ -1489,7 +1517,7 @@ public class User extends javax.swing.JFrame {
 
 
     private void fetchStudentsData(int students_id) {
-        String query = "SELECT s.students_id, s.students_name, c.class_name, "
+        String query = "SELECT s.students_id, s.students_name, s.gender, c.class_name, "
                 + "s.parent_contact_number, s.qr_code_data FROM students s "
                 + "JOIN classes c ON s.class_id = c.class_id WHERE s.students_id = ?";
 
@@ -1502,6 +1530,7 @@ public class User extends javax.swing.JFrame {
 
             if (rs.next()) {
                 txtFname.setText(rs.getString("students_name"));
+                cmbGender.setSelectedItem(rs.getString("gender"));
                 cmbClassId.setSelectedItem(rs.getString("class_name"));
                 txtNumber.setText(rs.getString("parent_contact_number"));
                 txtQrData.setText(rs.getString("qr_code_data"));
@@ -1579,6 +1608,7 @@ public class User extends javax.swing.JFrame {
 
             if (rs.next()) {
                 Tcfname.setText(rs.getString("teacher_name"));
+                cmbGender3.setSelectedItem(rs.getString("gender"));
             }
 
         } catch (SQLException e) {
@@ -1587,10 +1617,10 @@ public class User extends javax.swing.JFrame {
     }
 
     public void loadTeachersToTable() {
-        DefaultTableModel model = (DefaultTableModel) tableTeachers.getModel();
+        DefaultTableModel model = (DefaultTableModel) TableTeachers.getModel();
         model.setRowCount(0);
 
-        String query = "SELECT teacher_id ,teacher_name FROM teachers ORDER BY teacher_id DESC";
+        String query = "SELECT teacher_id ,teacher_name, gender FROM teachers ORDER BY teacher_id DESC";
 
         try (
                 Connection con = Prototype.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
@@ -1598,7 +1628,8 @@ public class User extends javax.swing.JFrame {
             while (rs.next()) {
                 Object[] row = {
                     rs.getInt("teacher_id"),
-                    rs.getString("teacher_name"),};
+                    rs.getString("teacher_name"),
+                    rs.getString("gender"),};
                 model.addRow(row);
             }
         } catch (SQLException e) {
@@ -1653,11 +1684,6 @@ public class User extends javax.swing.JFrame {
                 lblInactive.setText(rs4.getString(1));
             }
 
-//            PreparedStatement pst3 = con.prepareStatement("SELECT COUNT(*) FROM login_table");
-//            ResultSet rs3 = pst3.executeQuery();
-//            if (rs3.next()) {
-//                lblTotalAccounts.setText(rs3.getString(1));
-//            }
             rs1.close();
             rs2.close();
             rs4.close();
@@ -1777,6 +1803,8 @@ public class User extends javax.swing.JFrame {
         filler17 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         filler18 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         txtQrData = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        cmbGender = new javax.swing.JComboBox<>();
         iClasses = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         tableClasses = new javax.swing.JTable();
@@ -1812,6 +1840,8 @@ public class User extends javax.swing.JFrame {
         cboxClassReports = new javax.swing.JComboBox<>();
         filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        jLabel8 = new javax.swing.JLabel();
+        cmbGender2 = new javax.swing.JComboBox<>();
         iNotification = new javax.swing.JPanel();
         jScrollPane12 = new javax.swing.JScrollPane();
         tableSms1 = new javax.swing.JTable();
@@ -1855,7 +1885,7 @@ public class User extends javax.swing.JFrame {
         jLabel40 = new javax.swing.JLabel();
         iTeachers = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
-        tableTeachers = new javax.swing.JTable();
+        TableTeachers = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
         Tcfname = new javax.swing.JTextField();
         txtSearch2 = new javax.swing.JTextField();
@@ -1866,6 +1896,8 @@ public class User extends javax.swing.JFrame {
         jLabel41 = new javax.swing.JLabel();
         filler8 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        jLabel53 = new javax.swing.JLabel();
+        cmbGender3 = new javax.swing.JComboBox<>();
         iSubjects = new javax.swing.JPanel();
         jScrollPane7 = new javax.swing.JScrollPane();
         tableSubject = new javax.swing.JTable();
@@ -2683,7 +2715,7 @@ public class User extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Student Name", "Class", "Date", "Time_In", "Time_Out", "Status"
+                "Student Name", "Sex", "Class", "Date", "Time_In", "Time_Out", "Status"
             }
         ));
         tableAttendance.setRowHeight(30);
@@ -2760,7 +2792,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 30, 0, 0);
@@ -2777,7 +2809,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 30, 0, 0);
@@ -2794,7 +2826,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 30, 0, 0);
@@ -2806,7 +2838,7 @@ public class User extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Student Id", "Student Name", "Class", "Parent Contact", "Qr Code Data", "Status"
+                "Student Id", "Student Name", "Sex", "Class", "Parent Contact", "Qr Code Data", "Status"
             }
         ));
         tableStudent.setToolTipText("");
@@ -2820,10 +2852,9 @@ public class User extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 800;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -2842,7 +2873,7 @@ public class User extends javax.swing.JFrame {
         jMiddlename1.setText("Class:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         iStudents.add(jMiddlename1, gridBagConstraints);
 
@@ -2855,7 +2886,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -2865,7 +2896,7 @@ public class User extends javax.swing.JFrame {
         jLastname1.setText("Parent Number:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         iStudents.add(jLastname1, gridBagConstraints);
 
@@ -2873,7 +2904,7 @@ public class User extends javax.swing.JFrame {
         jGender1.setText("QR Code Data:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         iStudents.add(jGender1, gridBagConstraints);
 
@@ -2885,7 +2916,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -2911,7 +2942,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
@@ -2928,7 +2959,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 30, 0, 0);
@@ -2938,7 +2969,7 @@ public class User extends javax.swing.JFrame {
         lblStudentCount.setText("TOTAL STUDENT");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -3001,13 +3032,13 @@ public class User extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 5;
+        gridBagConstraints.gridheight = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 0.1;
         iStudents.add(filler17, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 0.1;
@@ -3016,11 +3047,29 @@ public class User extends javax.swing.JFrame {
         txtQrData.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         iStudents.add(txtQrData, gridBagConstraints);
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel7.setText("Sex:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
+        iStudents.add(jLabel7, gridBagConstraints);
+
+        cmbGender.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        cmbGender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SELECT SEX", "MALE ", "FEMALE" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iStudents.add(cmbGender, gridBagConstraints);
 
         jTabbedPane1.addTab("tab3", iStudents);
 
@@ -3225,7 +3274,7 @@ public class User extends javax.swing.JFrame {
         jLabel15.setText("FROM DATE:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         iReports.add(jLabel15, gridBagConstraints);
@@ -3233,7 +3282,7 @@ public class User extends javax.swing.JFrame {
         dateChooserFromDate.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.ipadx = 150;
         gridBagConstraints.ipady = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -3244,7 +3293,7 @@ public class User extends javax.swing.JFrame {
         jLabel16.setText("END DATE:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         iReports.add(jLabel16, gridBagConstraints);
@@ -3252,7 +3301,7 @@ public class User extends javax.swing.JFrame {
         dateChooserEndDate.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.ipadx = 150;
         gridBagConstraints.ipady = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -3262,13 +3311,13 @@ public class User extends javax.swing.JFrame {
         tableReport.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         tableReport.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Student Name", "Class", "Date", "Time_In", "Time_Out", "Status"
+                "Student Name", "Sex", "Class", "Date", "Time_In", "Time_Out", "Status"
             }
         ));
         tableReport.setToolTipText("");
@@ -3277,7 +3326,7 @@ public class User extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
@@ -3294,7 +3343,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         iReports.add(jButton4, gridBagConstraints);
@@ -3305,7 +3354,7 @@ public class User extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(50, 0, 0, 0);
         iReports.add(jLabel18, gridBagConstraints);
 
@@ -3313,7 +3362,7 @@ public class User extends javax.swing.JFrame {
         jLabel19.setText("Class:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         iReports.add(jLabel19, gridBagConstraints);
@@ -3322,7 +3371,7 @@ public class User extends javax.swing.JFrame {
         jLabel20.setText(" Status:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         iReports.add(jLabel20, gridBagConstraints);
@@ -3345,7 +3394,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         iReports.add(jButton7, gridBagConstraints);
@@ -3353,7 +3402,7 @@ public class User extends javax.swing.JFrame {
         txtStatus.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
@@ -3363,7 +3412,7 @@ public class User extends javax.swing.JFrame {
         jLabel28.setText("EXPORT:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         iReports.add(jLabel28, gridBagConstraints);
@@ -3377,7 +3426,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
         iReports.add(cboxClassReports, gridBagConstraints);
@@ -3385,17 +3434,34 @@ public class User extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.gridheight = 6;
+        gridBagConstraints.gridheight = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 0.1;
         iReports.add(filler4, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 6;
+        gridBagConstraints.gridheight = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 0.2;
         iReports.add(filler5, gridBagConstraints);
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel8.setText("Sex:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        iReports.add(jLabel8, gridBagConstraints);
+
+        cmbGender2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        cmbGender2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SELECT ALL SEX", "MALE", "FEMALE" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
+        iReports.add(cmbGender2, gridBagConstraints);
 
         jTabbedPane1.addTab("tab13", iReports);
 
@@ -3805,32 +3871,32 @@ public class User extends javax.swing.JFrame {
         iTeachers.setBackground(new java.awt.Color(255, 255, 255));
         iTeachers.setLayout(new java.awt.GridBagLayout());
 
-        tableTeachers.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        tableTeachers.setModel(new javax.swing.table.DefaultTableModel(
+        TableTeachers.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        TableTeachers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Teacher Id", "Teacher Name"
+                "Teacher Id", "Teacher Name", "Sex"
             }
         ));
-        tableTeachers.setRowHeight(30);
-        tableTeachers.addMouseListener(new java.awt.event.MouseAdapter() {
+        TableTeachers.setRowHeight(30);
+        TableTeachers.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableTeachersMouseClicked(evt);
+                TableTeachersMouseClicked(evt);
             }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                tableTeachersMouseEntered(evt);
+                TableTeachersMouseEntered(evt);
             }
         });
-        jScrollPane6.setViewportView(tableTeachers);
+        jScrollPane6.setViewportView(TableTeachers);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
@@ -3897,7 +3963,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
@@ -3914,7 +3980,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
         iTeachers.add(btnUpdate2, gridBagConstraints);
 
@@ -3929,7 +3995,7 @@ public class User extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
         iTeachers.add(btnDelete2, gridBagConstraints);
 
@@ -3944,17 +4010,34 @@ public class User extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 2.0;
         iTeachers.add(filler8, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.gridheight = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         iTeachers.add(filler9, gridBagConstraints);
+
+        jLabel53.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jLabel53.setText("SEX:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        iTeachers.add(jLabel53, gridBagConstraints);
+
+        cmbGender3.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        cmbGender3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SELECT SEX", "MALE", "FEMALE" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iTeachers.add(cmbGender3, gridBagConstraints);
 
         jTabbedPane1.addTab("tab9", iTeachers);
 
@@ -4122,7 +4205,7 @@ public class User extends javax.swing.JFrame {
                 {null, null, null}
             },
             new String [] {
-                "Id", "Class Name", "Subject Name"
+                "Id", "Class Name", "Teacher Name"
             }
         ));
         tableAssignTeacher.setRowHeight(30);
@@ -4461,13 +4544,13 @@ public class User extends javax.swing.JFrame {
         tableDropout.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         tableDropout.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Student Id", "Student Name", "Class Name", "Parent Number", "Qr Code Data", "Status"
+                "Student Id", "Student Name", "Sex", "Class Name", "Parent Number", "Qr Code Data", "Status"
             }
         ));
         tableDropout.setRowHeight(30);
@@ -4616,7 +4699,7 @@ public class User extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Students ID", "Students Name", "Class Name", "Parent Contact Number", "Qr Code Data", "Status"
+                "Students ID", "Students Name", "Sex", "Class Name", "Parent Contact Number", "Qr Code Data", "Status"
             }
         ));
         tableWithQR.setRowHeight(30);
@@ -4642,13 +4725,13 @@ public class User extends javax.swing.JFrame {
         tableWithoutQR.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         tableWithoutQR.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Students Id", "Students Name", "Class Name", "Parent Contact Number", "QR Code Data", "Status"
+                "Students Id", "Students Name", "Sex", "Class Name", "Parent Contact Number", "QR Code Data", "Status"
             }
         ));
         tableWithoutQR.setRowHeight(30);
@@ -5515,10 +5598,11 @@ public class User extends javax.swing.JFrame {
 
         int students_id = Integer.parseInt(tableDropout.getValueAt(selectedRow, 0).toString());
         String students_name = tableDropout.getValueAt(selectedRow, 1).toString();
-        String className = tableDropout.getValueAt(selectedRow, 2).toString();
+        String gender = tableDropout.getValueAt(selectedRow, 2).toString();
+        String className = tableDropout.getValueAt(selectedRow, 3).toString();
         int classId = getClassIdForName(className);
-        String parent_contact_number = tableDropout.getValueAt(selectedRow, 3).toString();
-        String qr_code_data = tableDropout.getValueAt(selectedRow, 4).toString();
+        String parent_contact_number = tableDropout.getValueAt(selectedRow, 4).toString();
+        String qr_code_data = tableDropout.getValueAt(selectedRow, 5).toString();
 
         int confirm = JOptionPane.showConfirmDialog(null,
             "Are you sure you want to active this student?",
@@ -5533,14 +5617,15 @@ public class User extends javax.swing.JFrame {
                 con = Prototype.getConnection();
                 con.setAutoCommit(false);
 
-                String insertQuery = "INSERT INTO students (students_id, students_name, class_id, parent_contact_number, qr_code_data, status) "
-                + "VALUES (?, ?, ?, ?, ?, 'Active')";
+                String insertQuery = "INSERT INTO students (students_id, students_name, gender, class_id, parent_contact_number, qr_code_data, status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, 'Active')";
                 pstInsert = con.prepareStatement(insertQuery);
                 pstInsert.setInt(1, students_id);
                 pstInsert.setString(2, students_name);
-                pstInsert.setInt(3, classId);
-                pstInsert.setString(4, parent_contact_number);
-                pstInsert.setString(5, qr_code_data);
+                pstInsert.setString(3, gender);
+                pstInsert.setInt(4, classId);
+                pstInsert.setString(5, parent_contact_number);
+                pstInsert.setString(6, qr_code_data);
                 pstInsert.executeUpdate();
 
                 String deleteQuery = "DELETE FROM inactive_students WHERE students_id=?";
@@ -5818,9 +5903,10 @@ public class User extends javax.swing.JFrame {
 
         int students_id = Integer.parseInt(tableStudent.getValueAt(selectedRow, 0).toString());
         String students_name = tableStudent.getValueAt(selectedRow, 1).toString();
-        String className = tableStudent.getValueAt(selectedRow, 2).toString(); 
-        String parent_contact_number = tableStudent.getValueAt(selectedRow, 3).toString();
-        String qr_code_data = tableStudent.getValueAt(selectedRow, 4).toString();
+        String gender = tableStudent.getValueAt(selectedRow, 2).toString();
+        String className = tableStudent.getValueAt(selectedRow, 3).toString(); 
+        String parent_contact_number = tableStudent.getValueAt(selectedRow, 4).toString();
+        String qr_code_data = tableStudent.getValueAt(selectedRow, 5).toString();
 
         int confirm = JOptionPane.showConfirmDialog(null, 
             "Are you sure you want to inactive this student?", 
@@ -5835,14 +5921,15 @@ public class User extends javax.swing.JFrame {
                 con = Prototype.getConnection();
                 con.setAutoCommit(false); 
 
-                String insertQuery = "INSERT INTO inactive_students (students_id, students_name, class_name, parent_contact_number, qr_code_data) " +
-                                     "VALUES (?, ?, ?, ?, ?)";
+                String insertQuery = "INSERT INTO inactive_students (students_id, students_name, gender, class_name, parent_contact_number, qr_code_data) " +
+                                     "VALUES (?, ?, ?, ?, ?, ?)";
                 pstInsert = con.prepareStatement(insertQuery);
                 pstInsert.setInt(1, students_id);
                 pstInsert.setString(2, students_name);
-                pstInsert.setString(3, className);
-                pstInsert.setString(4, parent_contact_number);
-                pstInsert.setString(5, qr_code_data);
+                pstInsert.setString(3, gender);
+                pstInsert.setString(4, className);
+                pstInsert.setString(5, parent_contact_number);
+                pstInsert.setString(6, qr_code_data);
                 pstInsert.executeUpdate();
 
                 String deleteQuery = "DELETE FROM students WHERE students_id=?";
@@ -5889,16 +5976,16 @@ public class User extends javax.swing.JFrame {
 
            
             if (sid.isEmpty()) {
-                pst = con.prepareStatement("SELECT s.students_id, s.students_name, c.class_name, s.parent_contact_number, s.qr_code_data, s.status FROM students s JOIN classes c ON s.class_id = c.class_id ");
+                pst = con.prepareStatement("SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number, s.qr_code_data, s.status FROM students s JOIN classes c ON s.class_id = c.class_id ");
             } else {
                 
-                pst = con.prepareStatement("SELECT s.students_id, s.students_name, c.class_name, s.parent_contact_number, s.qr_code_data, s.status FROM students s JOIN classes c ON s.class_id = c.class_id WHERE s.students_id LIKE ? OR s.students_name LIKE ? OR c.class_name LIKE ? OR s.qr_code_data LIKE ? OR s.status LIKE ?");
+                pst = con.prepareStatement("SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number, s.qr_code_data, s.status FROM students s JOIN classes c ON s.class_id = c.class_id WHERE s.students_id LIKE ? OR s.students_name LIKE ? OR s.gender LIKE ? OR c.class_name LIKE ? OR s.qr_code_data LIKE ? OR s.status LIKE ?");
                 pst.setString(1, "%" + sid + "%");
                 pst.setString(2, "%" + sid + "%");
                 pst.setString(3, "%" + sid + "%");
                 pst.setString(4, "%" + sid + "%");
                 pst.setString(5, "%" + sid + "%");
-                
+                pst.setString(6, "%" + sid + "%");
             }
 
            
@@ -5915,13 +6002,14 @@ public class User extends javax.swing.JFrame {
                 
                 String studentId = rs.getString("students_id");
                 String studentName = rs.getString("students_name");
+                String gender = rs.getString("gender");
                 String classId = rs.getString("class_name");
                 String parentContactNumber = rs.getString("parent_contact_number");
                 String qrCodeData = rs.getString("qr_code_data");
                 String status = rs.getString("status");
                 
                 
-                model.addRow(new Object[]{studentId, studentName, classId, parentContactNumber, qrCodeData, status});
+                model.addRow(new Object[]{studentId, studentName, gender, classId, parentContactNumber, qrCodeData, status});
             }
             
             updatestudentscount();
@@ -6004,19 +6092,21 @@ public class User extends javax.swing.JFrame {
         int students_id = Integer.parseInt(tableStudent.getValueAt(selectedRow, 0).toString());
 
         String className = cmbClassId.getSelectedItem().toString();
+        String gender = cmbGender.getSelectedItem().toString();
         int classId = getClassIdForName(className);
 
-        String query = "UPDATE students SET students_name=?, class_id=?, parent_contact_number=?, qr_code_data=? WHERE students_id=?";
+        String query = "UPDATE students SET students_name=?, gender=?, class_id=?, parent_contact_number=?, qr_code_data=? WHERE students_id=?";
 
         try {
             con = Prototype.getConnection();
             PreparedStatement pst = con.prepareStatement(query);
 
             pst.setString(1, txtFname.getText());
-            pst.setInt(2, classId);
-            pst.setString(3, txtNumber.getText());
-            pst.setString(4, txtQrData.getText());
-            pst.setInt(5, students_id);
+            pst.setString(2, cmbGender.getSelectedItem().toString());
+            pst.setInt(3, classId);
+            pst.setString(4, txtNumber.getText());
+            pst.setString(5, txtQrData.getText());
+            pst.setInt(6, students_id);
 
             int rowsUpdated = pst.executeUpdate();
             if (rowsUpdated > 0) {
@@ -6036,6 +6126,7 @@ public class User extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             String fullname = txtFname.getText();
+            String gender = cmbGender.getSelectedItem().toString();
             String className = cmbClassId.getSelectedItem().toString();
             String number = txtNumber.getText();
 
@@ -6046,24 +6137,26 @@ public class User extends javax.swing.JFrame {
                 return;
             }
 
-            if (fullname.isEmpty() || className.isEmpty() || number.isEmpty()) {
+            if (fullname.isEmpty() || className.isEmpty() || gender.isEmpty() || number.isEmpty()) {
                 JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
                 return;
             }
 
             con = Prototype.getConnection();
-            pst = con.prepareStatement("INSERT INTO students (students_name, class_id, parent_contact_number) VALUES(?,?,?)");
+            pst = con.prepareStatement("INSERT INTO students (students_name, gender, class_id, parent_contact_number) VALUES(?,?,?,?)");
             pst.setString(1, fullname);
-            pst.setInt(2, classId);
-            pst.setString(3, number);
+            pst.setString(2, gender);
+            pst.setInt(3, classId);
+            pst.setString(4, number);
 
             int k = pst.executeUpdate();
 
             if (k == 1) {
                 JOptionPane.showMessageDialog(rootPane, "Record successfully added.");
                 txtFname.setText("");
-                cmbClassId.setSelectedIndex(-1);
-                txtNumber.setText("");
+                cmbGender.setSelectedIndex(0);
+                cmbClassId.setSelectedIndex(0);
+                txtNumber.setText("639");
                 totalstudents();
             } else {
                 JOptionPane.showMessageDialog(rootPane, "Record failed.");
@@ -6095,7 +6188,7 @@ public class User extends javax.swing.JFrame {
             if (rs1.next()) {
                 int classId = rs1.getInt("class_id");
 
-                String queryStudents = "SELECT students_name FROM students WHERE class_id = ?";
+                String queryStudents = "SELECT students_name, gender FROM students WHERE class_id = ? ORDER BY gender DESC, students_name ASC";
                 PreparedStatement pst2 = con.prepareStatement(queryStudents);
                 pst2.setInt(1, classId);
                 ResultSet rs2 = pst2.executeQuery();
@@ -6108,6 +6201,7 @@ public class User extends javax.swing.JFrame {
                 while (rs2.next()) {
                     model.addRow(new Object[]{
                         rs2.getString("students_name"),
+                        rs2.getString("gender"),
                         selectedClass,
                         today,
                         null,
@@ -6130,8 +6224,8 @@ public class User extends javax.swing.JFrame {
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         try {
             con = Prototype.getConnection();
-            String insertQuery = "INSERT INTO attendance_records (students_name, class_"
-            + "id, date, time_in, time_out, status) VALUES (?, ?, ?, ?, ?, ?)";
+            String insertQuery = "INSERT INTO attendance_records (students_name, gender, class_"
+            + "id, date, time_in, time_out, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement pst = con.prepareStatement(insertQuery);
 
             DefaultTableModel model = (DefaultTableModel) tableAttendance.getModel();
@@ -6139,34 +6233,36 @@ public class User extends javax.swing.JFrame {
             for (int row = 0; row < model.getRowCount(); row++) {
 
                 String studentName = (model.getValueAt(row, 0) != null) ? model.getValueAt(row, 0).toString() : "";
-                String classID = (model.getValueAt(row, 1) != null) ? model.getValueAt(row, 1).toString() : "";
-                String date = (model.getValueAt(row, 2) != null) ? model.getValueAt(row, 2).toString().trim() : "";
-                String timeIn = (model.getValueAt(row, 3) != null) ? model.getValueAt(row, 3).toString().trim() : "";
-                String timeOut = (model.getValueAt(row, 4) != null) ? model.getValueAt(row, 4).toString().trim() : "";
-                String status = (model.getValueAt(row, 5) != null) ? model.getValueAt(row, 5).toString() : "";
+                String gender = (model.getValueAt(row, 1) != null) ? model.getValueAt(row, 1).toString() : "";
+                String classID = (model.getValueAt(row, 2) != null) ? model.getValueAt(row, 2).toString() : "";
+                String date = (model.getValueAt(row, 3) != null) ? model.getValueAt(row, 3).toString().trim() : "";
+                String timeIn = (model.getValueAt(row, 4) != null) ? model.getValueAt(row, 4).toString().trim() : "";
+                String timeOut = (model.getValueAt(row, 5) != null) ? model.getValueAt(row, 5).toString().trim() : "";
+                String status = (model.getValueAt(row, 6) != null) ? model.getValueAt(row, 6).toString() : "";
 
                 pst.setString(1, studentName);
-                pst.setString(2, classID);
+                pst.setString(2, gender);
+                pst.setString(3, classID);
 
                 if (date.isEmpty()) {
-                    pst.setNull(3, java.sql.Types.DATE);
+                    pst.setNull(4, java.sql.Types.DATE);
                 } else {
-                    pst.setString(3, date);
+                    pst.setString(4, date);
                 }
 
                 if (timeIn.isEmpty()) {
-                    pst.setNull(4, java.sql.Types.TIME);
+                    pst.setNull(5, java.sql.Types.TIME);
                 } else {
-                    pst.setString(4, timeIn);
+                    pst.setString(5, timeIn);
                 }
 
                 if (timeOut.isEmpty()) {
-                    pst.setNull(5, java.sql.Types.TIME);
+                    pst.setNull(6, java.sql.Types.TIME);
                 } else {
-                    pst.setString(5, timeOut);
+                    pst.setString(6, timeOut);
                 }
 
-                pst.setString(6, status);
+                pst.setString(7, status);
 
                 pst.addBatch();
 
@@ -6196,28 +6292,31 @@ public class User extends javax.swing.JFrame {
 
             for (int i = 0; i < tableAttendance.getRowCount(); i++) {
                 Object studentObj = tableAttendance.getValueAt(i, 0);
-                Object classObj = tableAttendance.getValueAt(i, 1);
-                Object dateObj = tableAttendance.getValueAt(i, 2);
-                Object timeInObj = tableAttendance.getValueAt(i, 3);
+                Object genderObj = tableAttendance.getValueAt(i, 1);
+                Object classObj = tableAttendance.getValueAt(i, 2);
+                Object dateObj = tableAttendance.getValueAt(i, 3);
+                Object timeInObj = tableAttendance.getValueAt(i, 4);
 
-                if (studentObj == null || classObj == null || dateObj == null || timeInObj == null) {
+                if (studentObj == null || genderObj == null || classObj == null || dateObj == null || timeInObj == null) {
                     continue;
                 }
 
                 String studentName = studentObj.toString();
+                String gender = studentObj.toString();
                 String classID = classObj.toString();
 
-                // 🔧 Fix casting error here by converting the string to java.sql.Date
+                
                 java.sql.Date sqlDate = java.sql.Date.valueOf(dateObj.toString());
 
                 PreparedStatement pst = con.prepareStatement(
-                    "UPDATE attendance_records SET time_out = ? WHERE students_name = ? AND class_id = ? AND date = ? AND time_in IS NOT NULL"
+                    "UPDATE attendance_records SET time_out = ? WHERE students_name = ? AND gender=? AND class_id = ? AND date = ? AND time_in IS NOT NULL"
                 );
 
                 pst.setString(1, formattedTimeOut);
-                pst.setString(2, studentName);
-                pst.setString(3, classID);
-                pst.setDate(4, sqlDate);
+                pst.setString(2, gender);
+                pst.setString(3, studentName);
+                pst.setString(4, classID);
+                pst.setDate(5, sqlDate);
 
                 int updatedRows = pst.executeUpdate();
                 pst.close();
@@ -6240,8 +6339,8 @@ public class User extends javax.swing.JFrame {
             }
 
             for (int i = 0; i < tableAttendance.getRowCount(); i++) {
-                if (tableAttendance.getValueAt(i, 3) != null) {
-                    tableAttendance.setValueAt(formattedTimeOut, i, 4);
+                if (tableAttendance.getValueAt(i, 4) != null) {
+                    tableAttendance.setValueAt(formattedTimeOut, i, 5);
                 }
             }
 
@@ -6295,70 +6394,6 @@ public class User extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
         generateExcelSummaryFromJTable(tableReport);
-        //        try {
-            //
-            //            JFileChooser fileChooser = new JFileChooser();
-            //            fileChooser.setDialogTitle("Select Folder to Save PDF");
-            //            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            //
-            //            int userSelection = fileChooser.showSaveDialog(null);
-            //
-            //            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                //                File selectedFolder = fileChooser.getSelectedFile();
-                //                String filePath = selectedFolder.getAbsolutePath() + File.separator + "Attendance_Report.pdf";
-                //
-                //
-                //                Document document = new Document(PageSize.A4);
-                //                PdfWriter.getInstance(document, new FileOutputStream(filePath));
-                //                document.open();
-                //
-                //
-                //                Paragraph title = new Paragraph("Attendance Report",
-                    //                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, Font.BOLD));
-                //                title.setAlignment(Element.ALIGN_CENTER);
-                //                title.setSpacingAfter(20);
-                //                document.add(title);
-                //
-                //
-                //                float[] columnWidths = {3f, 2f, 3f, 2f, 2f, 2f};
-                //                PdfPTable table = new PdfPTable(columnWidths);
-                //                table.setWidthPercentage(100);
-                //                table.setSpacingBefore(10f);
-                //
-                //
-                //                for (int i = 0; i < tableReport.getColumnCount(); i++) {
-                    //                    PdfPCell header = new PdfPCell(new Phrase(tableReport.getColumnName(i),
-                        //                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
-                //                    header.setHorizontalAlignment(Element.ALIGN_CENTER);
-                //                    header.setPadding(5);
-                //                    table.addCell(header);
-                //            }
-            //
-            //
-            //            for (int i = 0; i < tableReport.getRowCount(); i++) {
-                //                for (int j = 0; j < tableReport.getColumnCount(); j++) {
-                    //                    Object cellValue = tableReport.getValueAt(i, j);
-                    //                    String cellText = (cellValue == null) ? "" : cellValue.toString();
-                    //
-                    //                PdfPCell cell = new PdfPCell(new Phrase(cellText,
-                        //                FontFactory.getFont(FontFactory.HELVETICA, 11)));
-                //                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                //                cell.setPadding(5);
-                //                table.addCell(cell);
-                //            }
-            //        }
-        //
-        //        document.add(table);
-        //        document.close();
-        //
-        //        JOptionPane.showMessageDialog(null, "PDF Exported Successfully!\nSaved at: " + filePath,
-            //            "Success", JOptionPane.INFORMATION_MESSAGE);
-        //        }
-        //        } catch (Exception e) {
-        //            e.printStackTrace();
-        //            JOptionPane.showMessageDialog(null, "Error exporting PDF: " + e.getMessage(),
-            //                "Error", JOptionPane.ERROR_MESSAGE);
-        //        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
@@ -6378,6 +6413,12 @@ public class User extends javax.swing.JFrame {
             parameters.add(fromDate);
             parameters.add(endDate);
         }
+        
+        if (cmbGender2.getSelectedItem() != null
+            && !cmbGender2.getSelectedItem().toString().equals("SELECT ALL SEX")) {
+            query += " AND gender = ?";
+            parameters.add(cmbGender2.getSelectedItem().toString());
+        }
 
         if (!txtStudentName.getText().trim().isEmpty()) {
             query += " AND students_name LIKE ?";
@@ -6385,7 +6426,7 @@ public class User extends javax.swing.JFrame {
         }
 
         if (cboxClassReports.getSelectedItem() != null
-            && !cboxClassReports.getSelectedItem().toString().equals("Select All Classes")) {
+            && !cboxClassReports.getSelectedItem().toString().equals("SELECT ALL CLASSES")) {
             query += " AND class_id = ?";
             parameters.add(cboxClassReports.getSelectedItem().toString());
         }
@@ -6407,13 +6448,14 @@ public class User extends javax.swing.JFrame {
 
             while (rs.next()) {
                 String studentName = rs.getString("students_name");
+                String gender = rs.getString("gender");
                 String classId = rs.getString("class_id");
                 String date = rs.getString("date");
                 String timeIn = rs.getString("time_in");
                 String timeOut = rs.getString("time_out");
                 String status = rs.getString("status");
 
-                model.addRow(new Object[]{studentName, classId, date, timeIn, timeOut, status});
+                model.addRow(new Object[]{studentName, gender, classId, date, timeIn, timeOut, status});
             }
 
             if (model.getRowCount() == 0) {
@@ -6590,7 +6632,7 @@ public class User extends javax.swing.JFrame {
             PreparedStatement pst;
 
             if (selectedClassName.equals("Select All Classes")) {
-                query = "SELECT s.students_id, s.students_name, c.class_name, s.parent_contact_number " +
+                query = "SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number " +
                         "FROM students s " +
                         "JOIN classes c ON s.class_id = c.class_id " +
                         "WHERE s.qr_code_data IS NULL";
@@ -6608,7 +6650,7 @@ public class User extends javax.swing.JFrame {
 
                 int classId = classIdResult.getInt("class_id");
 
-                query = "SELECT s.students_id, s.students_name, c.class_name, s.parent_contact_number " +
+                query = "SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number " +
                         "FROM students s " +
                         "JOIN classes c ON s.class_id = c.class_id " +
                         "WHERE s.qr_code_data IS NULL AND s.class_id = ?";
@@ -6621,10 +6663,11 @@ public class User extends javax.swing.JFrame {
             while (rs.next()) {
                 String id = rs.getString("students_id");
                 String name = rs.getString("students_name");
+                String gender = rs.getString("gender");
                 String className = rs.getString("class_name");
                 String parentContact = rs.getString("parent_contact_number");
 
-                model.addRow(new Object[]{id, name, className, parentContact});
+                model.addRow(new Object[]{id, name, gender, className, parentContact});
             }
 
         } catch (Exception e) {
@@ -6633,19 +6676,19 @@ public class User extends javax.swing.JFrame {
 
     }//GEN-LAST:event_cboxNoQrActionPerformed
 
-    private void tableTeachersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableTeachersMouseClicked
+    private void TableTeachersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TableTeachersMouseClicked
         // TODO add your handling code here:
-        int selectedRow = tableTeachers.getSelectedRow();
+        int selectedRow = TableTeachers.getSelectedRow();
 
         if (selectedRow >= 0) {
-            int teacher_id = Integer.parseInt(tableTeachers.getValueAt(selectedRow, 0).toString());
+            int teacher_id = Integer.parseInt(TableTeachers.getValueAt(selectedRow, 0).toString());
             fetchTeachersData(teacher_id);
         }
-    }//GEN-LAST:event_tableTeachersMouseClicked
+    }//GEN-LAST:event_TableTeachersMouseClicked
 
-    private void tableTeachersMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableTeachersMouseEntered
+    private void TableTeachersMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TableTeachersMouseEntered
         // TODO add your handling code here:
-    }//GEN-LAST:event_tableTeachersMouseEntered
+    }//GEN-LAST:event_TableTeachersMouseEntered
 
     private void txtSearch2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearch2ActionPerformed
         // TODO add your handling code here:
@@ -6653,22 +6696,24 @@ public class User extends javax.swing.JFrame {
 
     private void txtSearch2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch2KeyTyped
         // TODO add your handling code here:
-        DefaultTableModel ob =  (DefaultTableModel) tableTeachers.getModel();
+        DefaultTableModel ob =  (DefaultTableModel) TableTeachers.getModel();
         TableRowSorter<DefaultTableModel> obj = new TableRowSorter<> (ob);
-        tableTeachers.setRowSorter(obj);
+        TableTeachers.setRowSorter(obj);
         obj.setRowFilter(RowFilter.regexFilter(txtSearch2.getText()));
     }//GEN-LAST:event_txtSearch2KeyTyped
 
     private void btnAdd2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd2ActionPerformed
-        // TODO add your handling code here:
+      // TODO add your handling code here:
         try {
             String fullname = Tcfname.getText();
+            String gender = cmbGender3.getSelectedItem().toString();
 
             con = Prototype.getConnection();
-            pst = con.prepareStatement("INSERT INTO teachers (teacher_name) VALUES(?)");
+            pst = con.prepareStatement("INSERT INTO teachers (teacher_name, gender) VALUES(?,?)");
             pst.setString(1,fullname);
+            pst.setString(2,gender);
 
-            if (fullname.isEmpty()) {
+            if (fullname.isEmpty() || gender.isEmpty() ) {
 
                 JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
                 return;
@@ -6679,7 +6724,7 @@ public class User extends javax.swing.JFrame {
             if (k==1){
                 JOptionPane.showMessageDialog(rootPane,"Record successfully");
                 Tcfname.setText("");
-
+                cmbGender3.setSelectedIndex(0);
             }else{
                 JOptionPane.showMessageDialog(rootPane,"Record failed");
             }
@@ -6692,22 +6737,24 @@ public class User extends javax.swing.JFrame {
 
     private void btnUpdate2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdate2ActionPerformed
         // TODO add your handling code here:
-        int selectedRow = tableTeachers.getSelectedRow();
+        int selectedRow = TableTeachers.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(null, "Please select a teachers to update.");
             return;
         }
 
-        int teacher_id = Integer.parseInt(tableTeachers.getValueAt(selectedRow, 0).toString());
+        int teacher_id = Integer.parseInt(TableTeachers.getValueAt(selectedRow, 0).toString());
+        String gender = cmbGender3.getSelectedItem().toString();
 
-        String query = "UPDATE teachers SET teacher_name=? WHERE teacher_id=?";
+        String query = "UPDATE teachers SET teacher_name=?, gender=? WHERE teacher_id=?";
 
         try {
             con = Prototype.getConnection();
             PreparedStatement pst = con.prepareStatement(query);
 
             pst.setString(1, Tcfname.getText());
-            pst.setInt(2, teacher_id);
+            pst.setString(2, cmbGender3.getSelectedItem().toString());
+            pst.setInt(3, teacher_id);
 
             int rowsUpdated = pst.executeUpdate();
             if (rowsUpdated > 0) {
@@ -6723,13 +6770,13 @@ public class User extends javax.swing.JFrame {
 
     private void btnDelete2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelete2ActionPerformed
         // TODO add your handling code here:
-        int selectedRow = tableTeachers.getSelectedRow();
+        int selectedRow = TableTeachers.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(null, "Please select a teacher to delete.");
             return;
         }
 
-        int teacher_id = Integer.parseInt(tableTeachers.getValueAt(selectedRow, 0).toString());
+        int teacher_id = Integer.parseInt(TableTeachers.getValueAt(selectedRow, 0).toString());
 
         int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this teacher?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
@@ -7084,6 +7131,7 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JPanel PInactive;
     private javax.swing.JPanel PStudent;
     private javax.swing.JTextField Subjectname;
+    private javax.swing.JTable TableTeachers;
     private javax.swing.JTextField Tcfname;
     private javax.swing.JPanel TermsAndCondition;
     private javax.swing.JTextField TxtQrcode;
@@ -7114,6 +7162,9 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cmbClass;
     private javax.swing.JComboBox<String> cmbClass1;
     private javax.swing.JComboBox<String> cmbClassId;
+    private javax.swing.JComboBox<String> cmbGender;
+    private javax.swing.JComboBox<String> cmbGender2;
+    private javax.swing.JComboBox<String> cmbGender3;
     private javax.swing.JComboBox<String> cmbSubject;
     private javax.swing.JComboBox<String> cmbsubject1;
     private javax.swing.JComboBox<String> comboGrade;
@@ -7230,7 +7281,10 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel50;
     private javax.swing.JLabel jLabel51;
     private javax.swing.JLabel jLabel52;
+    private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLastname;
     private javax.swing.JLabel jLastname1;
@@ -7295,7 +7349,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JTable tableSms1;
     private javax.swing.JTable tableStudent;
     private javax.swing.JTable tableSubject;
-    private javax.swing.JTable tableTeachers;
     private javax.swing.JTable tableWithQR;
     private javax.swing.JTable tableWithoutQR;
     private javax.swing.JTextField txtFname;
