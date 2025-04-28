@@ -466,7 +466,7 @@ public class User extends javax.swing.JFrame {
                 wrappedHeaderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
                 int totalColumns = dateSet.size() + 4; 
-                InputStream logoInput = new FileInputStream("C:\\Users\\Wisss\\Documents\\NetBeansProjects\\StudAttSystem\\src\\images\\header\\logo school.png");
+                InputStream logoInput = getClass().getResourceAsStream("/images/header/logo school.png");
                 byte[] bytes = logoInput.readAllBytes();
                 int pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
                 logoInput.close();
@@ -633,7 +633,7 @@ public class User extends javax.swing.JFrame {
 
                 FileOutputStream out = new FileOutputStream(file);
                 workbook.write(out);
-                out.close();
+                out.close();    
                 workbook.close();
                 Desktop.getDesktop().open(file);
                 
@@ -6496,10 +6496,44 @@ public class User extends javax.swing.JFrame {
 
     private void txtSearch4KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch4KeyTyped
         // TODO add your handling code here:
-        DefaultTableModel ob =  (DefaultTableModel) tableClasses.getModel();
-        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<> (ob);
-        tableClasses.setRowSorter(obj);
-        obj.setRowFilter(RowFilter.regexFilter(txtSearch4.getText()));
+        try {
+            
+            String sid = txtSearch4.getText().trim();
+
+            
+            con = Prototype.getConnection();
+
+           
+            if (sid.isEmpty()) {
+                pst = con.prepareStatement("Select * from classes");
+            } else {
+                
+                pst = con.prepareStatement("SELECT * FROM classes WHERE class_name LIKE ? OR class_id LIKE ?");
+                pst.setString(1, "%" + sid + "%");
+                pst.setString(2, "%" + sid + "%");
+            }
+
+           
+            rs = pst.executeQuery();
+
+            
+            DefaultTableModel model = (DefaultTableModel) tableClasses.getModel();
+
+            
+            model.setRowCount(0);
+
+            
+            while (rs.next()) {
+                String classid = rs.getString("class_id");
+                String classname = rs.getString("class_name");
+                
+                model.addRow(new Object[]{classid, classname});
+            }
+            
+            updatestudentscount();
+        } catch (SQLException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_txtSearch4KeyTyped
 
     private void btnAdd4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd4ActionPerformed
