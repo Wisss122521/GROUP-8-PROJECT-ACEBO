@@ -474,7 +474,7 @@ public class User extends javax.swing.JFrame {
                 CreationHelper helper = workbook.getCreationHelper();
                 Drawing<?> drawing = sheet.createDrawingPatriarch();
                 ClientAnchor anchor = helper.createClientAnchor();
-                anchor.setCol1(4);
+                anchor.setCol1(3);
                 anchor.setRow1(0);
                 anchor.setCol2(1);
                 anchor.setRow2(3);
