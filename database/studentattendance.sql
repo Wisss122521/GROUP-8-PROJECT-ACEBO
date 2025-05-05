@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:4306
--- Generation Time: Apr 27, 2025 at 06:06 PM
+-- Generation Time: May 05, 2025 at 03:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -123,7 +123,7 @@ CREATE TABLE `class_subject` (
 --
 
 INSERT INTO `class_subject` (`id`, `class_id`, `subject_id`) VALUES
-(53, 28, 20);
+(56, 28, 20);
 
 -- --------------------------------------------------------
 
@@ -221,7 +221,8 @@ CREATE TABLE `sms_logs` (
 --
 
 INSERT INTO `sms_logs` (`id`, `parent_number`, `student_name`, `message`, `status`, `created_at`) VALUES
-(114, '639000000000', 'ROB, RONNEL', 'Hello, your child ROB, RONNEL has left the school.', 'sent', '2025-04-27 14:51:06');
+(117, '639217467275', 'CHAN, MARIE', 'Hello, your child CHAN, MARIE has arrived at school.', 'sent', '2025-04-28 03:19:38'),
+(118, '639217467275', 'CHAN, MARIE', 'Hello, your child CHAN, MARIE has left the school.', 'sent', '2025-04-28 03:24:24');
 
 -- --------------------------------------------------------
 
@@ -244,8 +245,8 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`students_id`, `students_name`, `gender`, `class_id`, `parent_contact_number`, `qr_code_data`, `status`) VALUES
-(10614, 'ROB, RONNEL', 'MALE ', 28, '639000000000', 'ROB, RONNEL', 'Active'),
-(10677, 'CHAN, MARIE', 'FEMALE', 28, '639000000000', NULL, 'Active');
+(10737, 'ROB, RONNEL', 'MALE ', 28, '639000000000', NULL, 'Active'),
+(10739, 'CHAN, MARIE', 'FEMALE', 28, '639217467275', NULL, 'Active');
 
 -- --------------------------------------------------------
 
@@ -361,7 +362,9 @@ ALTER TABLE `subject`
 -- Indexes for table `teachers`
 --
 ALTER TABLE `teachers`
-  ADD PRIMARY KEY (`teacher_id`);
+  ADD PRIMARY KEY (`teacher_id`),
+  ADD UNIQUE KEY `teacher_name` (`teacher_name`),
+  ADD UNIQUE KEY `teacher_name_2` (`teacher_name`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -377,25 +380,25 @@ ALTER TABLE `attendance_records`
 -- AUTO_INCREMENT for table `classes`
 --
 ALTER TABLE `classes`
-  MODIFY `class_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `class_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `class_subject`
 --
 ALTER TABLE `class_subject`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `class_teacher`
 --
 ALTER TABLE `class_teacher`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `inactive_students`
 --
 ALTER TABLE `inactive_students`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `login_table`
@@ -407,31 +410,31 @@ ALTER TABLE `login_table`
 -- AUTO_INCREMENT for table `qrcode`
 --
 ALTER TABLE `qrcode`
-  MODIFY `qrcodeid` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=205;
+  MODIFY `qrcodeid` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=206;
 
 --
 -- AUTO_INCREMENT for table `sms_logs`
 --
 ALTER TABLE `sms_logs`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=119;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `students_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10678;
+  MODIFY `students_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10740;
 
 --
 -- AUTO_INCREMENT for table `subject`
 --
 ALTER TABLE `subject`
-  MODIFY `subject_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `subject_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `teachers`
 --
 ALTER TABLE `teachers`
-  MODIFY `teacher_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `teacher_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- Constraints for dumped tables

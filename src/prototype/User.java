@@ -2842,7 +2842,15 @@ public class User extends javax.swing.JFrame {
             new String [] {
                 "Student Id", "Student Name", "Sex", "Class", "Parent Contact", "Qr Code Data", "Status"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tableStudent.setToolTipText("");
         tableStudent.setRowHeight(30);
         tableStudent.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -2989,6 +2997,9 @@ public class User extends javax.swing.JFrame {
             }
         });
         txtSearch1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearch1KeyReleased(evt);
+            }
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 txtSearch1KeyTyped(evt);
             }
@@ -3121,6 +3132,11 @@ public class User extends javax.swing.JFrame {
         iClasses.add(jLabel13, gridBagConstraints);
 
         txtSchoolYear.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        txtSchoolYear.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSchoolYearKeyTyped(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
@@ -4802,6 +4818,9 @@ public class User extends javax.swing.JFrame {
             }
         });
         txtSearch8.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearch8KeyReleased(evt);
+            }
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 txtSearch8KeyTyped(evt);
             }
@@ -5366,10 +5385,49 @@ public class User extends javax.swing.JFrame {
 
     private void txtSearch8KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch8KeyTyped
         // TODO add your handling code here:
-        DefaultTableModel ob =  (DefaultTableModel) tableWithQR.getModel();
-        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<> (ob);
-        tableWithQR.setRowSorter(obj);
-        obj.setRowFilter(RowFilter.regexFilter(txtSearch8.getText()));
+        try {
+            String sid = txtSearch8.getText().trim().toLowerCase();
+            con = Prototype.getConnection();
+
+            if (sid.isEmpty()) {
+                pst = con.prepareStatement("SELECT students_id, students_name, gender, class_name, parent_contact_number, qr_code_data, status FROM inactive_students");
+            } else {
+                boolean isGenderSearch = sid.equals("male") || sid.equals("female");
+
+                String query = "SELECT students_id, students_name, gender, class_name, parent_contact_number, qr_code_data, status " +
+                               "FROM inactive_students " +
+                               "WHERE students_id LIKE ? OR students_name LIKE ? OR parent_contact_number LIKE ? " +
+                               "OR class_name LIKE ? OR qr_code_data LIKE ? " +
+                               (isGenderSearch ? "OR gender = ?" : "OR gender LIKE ?");
+
+                pst = con.prepareStatement(query);
+                pst.setString(1, "%" + sid + "%");
+                pst.setString(2, "%" + sid + "%");
+                pst.setString(3, "%" + sid + "%");
+                pst.setString(4, "%" + sid + "%");
+                pst.setString(5, "%" + sid + "%");
+                pst.setString(6, isGenderSearch ? sid : "%" + sid + "%");
+            }
+
+            rs = pst.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) tableWithQR.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                String studentId = rs.getString("students_id");
+                String studentName = rs.getString("students_name");
+                String gender = rs.getString("gender");
+                String classId = rs.getString("class_name");
+                String parentContactNumber = rs.getString("parent_contact_number");
+                String qrCodeData = rs.getString("qr_code_data");
+                String status = rs.getString("status");
+
+                model.addRow(new Object[]{studentId, studentName, gender, classId, parentContactNumber, qrCodeData, status});
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }     
     }//GEN-LAST:event_txtSearch8KeyTyped
 
     private void txtSearch8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearch8ActionPerformed
@@ -5540,46 +5598,44 @@ public class User extends javax.swing.JFrame {
     private void txtSearch6KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch6KeyTyped
         // TODO add your handling code here:
         try {
-           
-            String sid = txtSearch6.getText().trim();
-
-            
+            String sid = txtSearch6.getText().trim().toLowerCase();
             con = Prototype.getConnection();
 
-            
             if (sid.isEmpty()) {
-                pst = con.prepareStatement("SELECT students_id, students_name, class_name, parent_contact_number, qr_code_data, status FROM inactive_students");
+                pst = con.prepareStatement("SELECT students_id, students_name, gender, class_name, parent_contact_number, qr_code_data, status FROM inactive_students");
             } else {
-               
-                pst = con.prepareStatement("SELECT students_id, students_name, class_name, parent_contact_number, qr_code_data, status FROM inactive_students WHERE students_id LIKE ? OR students_name LIKE ? OR parent_contact_number LIKE ? OR class_name LIKE ? OR qr_code_data LIKE ?");
+                boolean isGenderSearch = sid.equals("male") || sid.equals("female");
+
+                String query = "SELECT students_id, students_name, gender, class_name, parent_contact_number, qr_code_data, status " +
+                               "FROM inactive_students " +
+                               "WHERE students_id LIKE ? OR students_name LIKE ? OR parent_contact_number LIKE ? " +
+                               "OR class_name LIKE ? OR qr_code_data LIKE ? " +
+                               (isGenderSearch ? "OR gender = ?" : "OR gender LIKE ?");
+
+                pst = con.prepareStatement(query);
                 pst.setString(1, "%" + sid + "%");
                 pst.setString(2, "%" + sid + "%");
                 pst.setString(3, "%" + sid + "%");
                 pst.setString(4, "%" + sid + "%");
                 pst.setString(5, "%" + sid + "%");
+                pst.setString(6, isGenderSearch ? sid : "%" + sid + "%");
             }
 
-            
             rs = pst.executeQuery();
 
-            
             DefaultTableModel model = (DefaultTableModel) tableDropout.getModel();
-
-            
             model.setRowCount(0);
 
-            
             while (rs.next()) {
-                
                 String studentId = rs.getString("students_id");
                 String studentName = rs.getString("students_name");
+                String gender = rs.getString("gender");
                 String classId = rs.getString("class_name");
                 String parentContactNumber = rs.getString("parent_contact_number");
                 String qrCodeData = rs.getString("qr_code_data");
                 String status = rs.getString("status");
 
-                
-                model.addRow(new Object[]{studentId, studentName, classId, parentContactNumber, qrCodeData, status});
+                model.addRow(new Object[]{studentId, studentName, gender, classId, parentContactNumber, qrCodeData, status});
             }
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
@@ -5896,7 +5952,7 @@ public class User extends javax.swing.JFrame {
         }
 
         
-        for (int i = 0; i <= 4; i++) {
+        for (int i = 0; i <= 5; i++) {
             if (tableStudent.getValueAt(selectedRow, i) == null) {
                 JOptionPane.showMessageDialog(null, "Selected row contains incomplete student data.");
                 return;
@@ -5971,23 +6027,29 @@ public class User extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             
-            String sid = txtSearch1.getText().trim();
-
-            
+            String sid = txtSearch1.getText().trim().toLowerCase();
             con = Prototype.getConnection();
 
-           
             if (sid.isEmpty()) {
-                pst = con.prepareStatement("SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number, s.qr_code_data, s.status FROM students s JOIN classes c ON s.class_id = c.class_id ");
+                pst = con.prepareStatement("SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number, s.qr_code_data, s.status FROM students s JOIN classes c ON s.class_id = c.class_id");
             } else {
                 
-                pst = con.prepareStatement("SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number, s.qr_code_data, s.status FROM students s JOIN classes c ON s.class_id = c.class_id WHERE s.students_id LIKE ? OR s.students_name LIKE ? OR s.gender LIKE ? OR c.class_name LIKE ? OR s.qr_code_data LIKE ? OR s.status LIKE ?");
+                boolean isGenderSearch = sid.equals("male") || sid.equals("female");
+
+                String query = "SELECT s.students_id, s.students_name, s.gender, c.class_name, s.parent_contact_number, s.qr_code_data, s.status " +
+                               "FROM students s JOIN classes c ON s.class_id = c.class_id " +
+                               "WHERE s.students_id LIKE ? OR s.students_name LIKE ? " +
+                               (isGenderSearch ? "OR s.gender = ? " : "OR s.gender LIKE ? ") +
+                               "OR c.class_name LIKE ? OR s.parent_contact_number LIKE ? OR s.qr_code_data LIKE ? OR s.status LIKE ?";
+
+                pst = con.prepareStatement(query);
                 pst.setString(1, "%" + sid + "%");
                 pst.setString(2, "%" + sid + "%");
-                pst.setString(3, "%" + sid + "%");
+                pst.setString(3, isGenderSearch ? sid : "%" + sid + "%");
                 pst.setString(4, "%" + sid + "%");
                 pst.setString(5, "%" + sid + "%");
                 pst.setString(6, "%" + sid + "%");
+                pst.setString(7, "%" + sid + "%");
             }
 
            
@@ -6002,13 +6064,13 @@ public class User extends javax.swing.JFrame {
             
             while (rs.next()) {
                 
-                String studentId = rs.getString("students_id");
-                String studentName = rs.getString("students_name");
-                String gender = rs.getString("gender");
-                String classId = rs.getString("class_name");
-                String parentContactNumber = rs.getString("parent_contact_number");
-                String qrCodeData = rs.getString("qr_code_data");
-                String status = rs.getString("status");
+                String studentId = rs.getString("s.students_id");
+                String studentName = rs.getString("s.students_name");
+                String gender = rs.getString("s.gender");
+                String classId = rs.getString("c.class_name");
+                String parentContactNumber = rs.getString("s.parent_contact_number");
+                String qrCodeData = rs.getString("s.qr_code_data");
+                String status = rs.getString("s.status");
                 
                 
                 model.addRow(new Object[]{studentId, studentName, gender, classId, parentContactNumber, qrCodeData, status});
@@ -6127,47 +6189,61 @@ public class User extends javax.swing.JFrame {
     private void btnAdd1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd1ActionPerformed
         // TODO add your handling code here:
         try {
-            String fullname = txtFname.getText();
-            String gender = cmbGender.getSelectedItem().toString();
-            String className = cmbClassId.getSelectedItem().toString();
-            String number = txtNumber.getText();
+    String fullname = txtFname.getText().trim();
+    String gender = cmbGender.getSelectedItem().toString();
+    String className = cmbClassId.getSelectedItem().toString();
+    String number = txtNumber.getText().trim();
 
-            int classId = getClassIdForName(className);
+    int classId = getClassIdForName(className);
 
-            if (!number.matches("\\d{12}")) {
-                JOptionPane.showMessageDialog(null, "Invalid number! Enter exactly 12 digits.", "Input Error", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+    if (!number.matches("\\d{12}")) {
+        JOptionPane.showMessageDialog(null, "Invalid number! Enter exactly 12 digits.", "Input Error", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-            if (fullname.isEmpty() || className.isEmpty() || gender.isEmpty() || number.isEmpty()) {
-                JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
-                return;
-            }
+    if (fullname.isEmpty() || className.isEmpty() || gender.equals("SELECT SEX") || number.isEmpty()) {
+        JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
+        return;
+    }
 
-            con = Prototype.getConnection();
-            pst = con.prepareStatement("INSERT INTO students (students_name, gender, class_id, parent_contact_number) VALUES(?,?,?,?)");
-            pst.setString(1, fullname);
-            pst.setString(2, gender);
-            pst.setInt(3, classId);
-            pst.setString(4, number);
+    con = Prototype.getConnection();
 
-            int k = pst.executeUpdate();
+    // Duplication check by student name and class ID
+    pst = con.prepareStatement("SELECT * FROM students WHERE students_name = ? AND class_id = ?");
+    pst.setString(1, fullname);
+    pst.setInt(2, classId);
+    ResultSet rs = pst.executeQuery();
 
-            if (k == 1) {
-                JOptionPane.showMessageDialog(rootPane, "Record successfully added.");
-                txtFname.setText("");
-                cmbGender.setSelectedIndex(0);
-                cmbClassId.setSelectedIndex(0);
-                txtNumber.setText("639");
-                totalstudents();
-            } else {
-                JOptionPane.showMessageDialog(rootPane, "Record failed.");
-            }
+    if (rs.next()) {
+        JOptionPane.showMessageDialog(rootPane, "Student already exists in this class.");
+        return;
+    }
 
-            loadStudentsToTable();
-        } catch (SQLException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    // Proceed with insertion
+    pst = con.prepareStatement("INSERT INTO students (students_name, gender, class_id, parent_contact_number) VALUES(?,?,?,?)");
+    pst.setString(1, fullname);
+    pst.setString(2, gender);
+    pst.setInt(3, classId);
+    pst.setString(4, number);
+
+    int k = pst.executeUpdate();
+
+    if (k == 1) {
+        JOptionPane.showMessageDialog(rootPane, "Record successfully added.");
+        txtFname.setText("");
+        cmbGender.setSelectedIndex(0);
+        cmbClassId.setSelectedIndex(0);
+        txtNumber.setText("639");
+        totalstudents();
+    } else {
+        JOptionPane.showMessageDialog(rootPane, "Record failed.");
+    }
+
+    loadStudentsToTable();
+} catch (SQLException ex) {
+    Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+}
+
     }//GEN-LAST:event_btnAdd1ActionPerformed
 
     private void cboxclassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboxclassActionPerformed
@@ -6530,7 +6606,6 @@ public class User extends javax.swing.JFrame {
                 model.addRow(new Object[]{classid, classname});
             }
             
-            updatestudentscount();
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -6624,32 +6699,58 @@ public class User extends javax.swing.JFrame {
         // TODO add your handling code here:
         int selectedRow = tableClasses.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(null, "Please select a classes to delete.");
+            JOptionPane.showMessageDialog(null, "Please select a class to delete.");
             return;
         }
 
         int class_id = Integer.parseInt(tableClasses.getValueAt(selectedRow, 0).toString());
 
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this classes?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to delete this class?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION);
+
         if (confirm == JOptionPane.YES_OPTION) {
             String query = "DELETE FROM classes WHERE class_id=?";
+            Connection con = null;
+            PreparedStatement pst = null;
 
             try {
                 con = Prototype.getConnection();
-                PreparedStatement pst = con.prepareStatement(query);
+                pst = con.prepareStatement(query);
                 pst.setInt(1, class_id);
 
                 int rowsDeleted = pst.executeUpdate();
                 if (rowsDeleted > 0) {
-                    JOptionPane.showMessageDialog(null, "Classes deleted successfully.");
+                    JOptionPane.showMessageDialog(null, "Class deleted successfully.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No class was deleted.");
                 }
                 loadClassesToTable();
 
+            } catch (SQLIntegrityConstraintViolationException e) {
+                JOptionPane.showMessageDialog(null,
+                        "Cannot delete this class because it is still assigned to a teacher or student.",
+                        "Delete Error",
+                        JOptionPane.ERROR_MESSAGE);
+
             } catch (SQLException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Delete first CLASS_ID in Students Information!");
+                JOptionPane.showMessageDialog(null,
+                        "An unexpected error occurred while deleting the class.",
+                        "Database Error",
+                        JOptionPane.ERROR_MESSAGE);
+
+            } finally {
+                try {
+                    if (pst != null) pst.close();
+                    if (con != null) con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
+
     }//GEN-LAST:event_btnDelete4ActionPerformed
 
     private void cboxNoQrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboxNoQrActionPerformed
@@ -6735,37 +6836,77 @@ public class User extends javax.swing.JFrame {
 
     private void txtSearch2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch2KeyTyped
         // TODO add your handling code here:
-        DefaultTableModel ob =  (DefaultTableModel) TableTeachers.getModel();
-        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<> (ob);
-        TableTeachers.setRowSorter(obj);
-        obj.setRowFilter(RowFilter.regexFilter(txtSearch2.getText()));
+        try {
+            String sid = txtSearch2.getText().trim().toLowerCase();
+            con = Prototype.getConnection();
+
+            if (sid.isEmpty()) {
+                pst = con.prepareStatement("SELECT * FROM teachers");
+            } else {
+                boolean isGenderSearch = sid.equals("male") || sid.equals("female");
+
+                String query = "SELECT teacher_id, teacher_name, gender FROM teachers " +
+                               "WHERE teacher_id LIKE ? OR teacher_name LIKE ? " +
+                               (isGenderSearch ? "OR gender = ?" : "OR gender LIKE ?");
+
+                pst = con.prepareStatement(query);
+                pst.setString(1, "%" + sid + "%");
+                pst.setString(2, "%" + sid + "%");
+                pst.setString(3, isGenderSearch ? sid : "%" + sid + "%");
+            }
+
+            rs = pst.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) TableTeachers.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                String teacherid = rs.getString("teacher_id");
+                String teachername = rs.getString("teacher_name");
+                String gender = rs.getString("gender");
+
+                model.addRow(new Object[]{teacherid, teachername, gender});
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_txtSearch2KeyTyped
 
     private void btnAdd2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd2ActionPerformed
       // TODO add your handling code here:
         try {
-            String fullname = Tcfname.getText();
+            String fullname = Tcfname.getText().trim();
             String gender = cmbGender3.getSelectedItem().toString();
 
-            con = Prototype.getConnection();
-            pst = con.prepareStatement("INSERT INTO teachers (teacher_name, gender) VALUES(?,?)");
-            pst.setString(1,fullname);
-            pst.setString(2,gender);
-
-            if (fullname.isEmpty() || gender.isEmpty() ) {
-
+            if (fullname.isEmpty() || gender.equals("SELECT SEX")) {
                 JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
                 return;
             }
 
+            con = Prototype.getConnection();
+
+            pst = con.prepareStatement("SELECT * FROM teachers WHERE teacher_name = ?");
+            pst.setString(1, fullname);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                JOptionPane.showMessageDialog(rootPane, "Teacher already exists!");
+                return;
+            }
+
+            pst = con.prepareStatement("INSERT INTO teachers (teacher_name, gender) VALUES(?,?)");
+            pst.setString(1, fullname);
+            pst.setString(2, gender);
+
             int k = pst.executeUpdate();
 
-            if (k==1){
-                JOptionPane.showMessageDialog(rootPane,"Record successfully");
+            if (k == 1) {
+                JOptionPane.showMessageDialog(rootPane, "Record successfully added");
                 Tcfname.setText("");
                 cmbGender3.setSelectedIndex(0);
-            }else{
-                JOptionPane.showMessageDialog(rootPane,"Record failed");
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "Record failed");
             }
 
             loadTeachersToTable();
@@ -6817,24 +6958,49 @@ public class User extends javax.swing.JFrame {
 
         int teacher_id = Integer.parseInt(TableTeachers.getValueAt(selectedRow, 0).toString());
 
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this teacher?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(null, 
+            "Are you sure you want to delete this teacher?", 
+            "Confirm Delete", 
+            JOptionPane.YES_NO_OPTION);
+
         if (confirm == JOptionPane.YES_OPTION) {
             String query = "DELETE FROM teachers WHERE teacher_id=?";
+            Connection con = null;
+            PreparedStatement pst = null;
 
             try {
                 con = Prototype.getConnection();
-                PreparedStatement pst = con.prepareStatement(query);
+                pst = con.prepareStatement(query);
                 pst.setInt(1, teacher_id);
 
                 int rowsDeleted = pst.executeUpdate();
                 if (rowsDeleted > 0) {
                     JOptionPane.showMessageDialog(null, "Teacher deleted successfully.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No teacher was deleted.");
                 }
                 loadTeachersToTable();
 
+            } catch (SQLIntegrityConstraintViolationException e) {
+                JOptionPane.showMessageDialog(null, 
+                    "Cannot delete this teacher because they are still assigned to a class.",
+                    "Delete Error",
+                    JOptionPane.ERROR_MESSAGE);
+
             } catch (SQLException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Error deleting teacher.");
+                JOptionPane.showMessageDialog(null, 
+                    "An error occurred while deleting the teacher.",
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
+
+            } finally {
+                try {
+                    if (pst != null) pst.close();
+                    if (con != null) con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }//GEN-LAST:event_btnDelete2ActionPerformed
@@ -6924,26 +7090,53 @@ public class User extends javax.swing.JFrame {
 
         int subject_id = Integer.parseInt(tableSubject.getValueAt(selectedRow, 0).toString());
 
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this subject?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to delete this subject?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION);
+
         if (confirm == JOptionPane.YES_OPTION) {
             String query = "DELETE FROM subject WHERE subject_id=?";
+            Connection con = null;
+            PreparedStatement pst = null;
 
             try {
                 con = Prototype.getConnection();
-                PreparedStatement pst = con.prepareStatement(query);
+                pst = con.prepareStatement(query);
                 pst.setInt(1, subject_id);
 
                 int rowsDeleted = pst.executeUpdate();
                 if (rowsDeleted > 0) {
                     JOptionPane.showMessageDialog(null, "Subject deleted successfully.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No subject was deleted.");
                 }
                 loadSubjectToTable();
 
+            } catch (SQLIntegrityConstraintViolationException e) {
+                
+                JOptionPane.showMessageDialog(null,
+                        "Cannot delete this subject because it is still assigned to one or more classes.",
+                        "Delete Error",
+                        JOptionPane.ERROR_MESSAGE);
+
             } catch (SQLException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Error deleting subject.");
+                JOptionPane.showMessageDialog(null,
+                        "An unexpected error occurred while deleting the subject.",
+                        "Database Error",
+                        JOptionPane.ERROR_MESSAGE);
+
+            } finally {
+                try {
+                    if (pst != null) pst.close();
+                    if (con != null) con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
+
     }//GEN-LAST:event_btnDelete3ActionPerformed
 
     private void txtSearch7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearch7ActionPerformed
@@ -6952,10 +7145,43 @@ public class User extends javax.swing.JFrame {
 
     private void txtSearch7KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch7KeyTyped
         // TODO add your handling code here:
-        DefaultTableModel ob =  (DefaultTableModel) tableSubject.getModel();
-        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<> (ob);
-        tableSubject.setRowSorter(obj);
-        obj.setRowFilter(RowFilter.regexFilter(txtSearch7.getText()));
+        try {
+            
+            String sid = txtSearch7.getText().trim();
+
+            
+            con = Prototype.getConnection();
+
+           
+            if (sid.isEmpty()) {
+                pst = con.prepareStatement("Select * from subject");
+            } else {
+                
+                pst = con.prepareStatement("SELECT subject_id, subject_name FROM subject WHERE subject_id LIKE ? OR subject_name LIKE ?");
+                pst.setString(1, "%" + sid + "%");
+                pst.setString(2, "%" + sid + "%");
+            }
+
+           
+            rs = pst.executeQuery();
+
+            
+            DefaultTableModel model = (DefaultTableModel) tableSubject.getModel();
+
+            
+            model.setRowCount(0);
+
+            
+            while (rs.next()) {
+                String subjectid = rs.getString("subject_id");
+                String subjectname = rs.getString("subject_name");
+                
+                model.addRow(new Object[]{subjectid, subjectname});
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_txtSearch7KeyTyped
 
     private void tableAssignTeacherMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableAssignTeacherMouseClicked
@@ -6990,7 +7216,7 @@ public class User extends javax.swing.JFrame {
         int selectedRow = tableAssignTeacher.getSelectedRow();
 
         if (selectedRow != -1) {
-            int id = (int) tableAssignTeacher.getValueAt(selectedRow, 0);
+            int id = Integer.parseInt(tableAssignTeacher.getValueAt(selectedRow, 0).toString());
             deleteAssignedClassTeacher(id);
         } else {
             JOptionPane.showMessageDialog(null, "Please select an assignment to delete!");
@@ -7015,10 +7241,54 @@ public class User extends javax.swing.JFrame {
 
     private void txtSearch3KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch3KeyTyped
         // TODO add your handling code here:
-        DefaultTableModel ob =  (DefaultTableModel) tableAssignTeacher.getModel();
-        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<> (ob);
-        tableAssignTeacher.setRowSorter(obj);
-        obj.setRowFilter(RowFilter.regexFilter(txtSearch3.getText()));
+        try {
+        
+            String sid = txtSearch3.getText().trim();
+
+            
+            con = Prototype.getConnection();
+
+            
+            DefaultTableModel model = (DefaultTableModel) tableAssignTeacher.getModel();
+            model.setRowCount(0); 
+
+            PreparedStatement pst;
+
+            
+        if (sid.isEmpty()) {
+         
+        pst = con.prepareStatement("SELECT ct.id, c.class_name, t.teacher_name FROM "
+                + "class_teacher ct "
+                + "JOIN classes c ON ct.class_id = c.class_id "
+                + "JOIN teachers t ON ct.teacher_id = t.teacher_id ORDER BY ct.id DESC");
+        } else {
+         
+            pst = con.prepareStatement("SELECT ct.id, c.class_name, t.teacher_name FROM "
+                    + "class_teacher ct "
+                    + "JOIN classes c ON ct.class_id = c.class_id "
+                    + "JOIN teachers t ON ct.teacher_id = t.teacher_id "
+                    + "WHERE ct.id LIKE ? OR c.class_name LIKE ? OR t.teacher_name LIKE ?");
+            pst.setString(1, "%" + sid + "%");
+            pst.setString(2, "%" + sid + "%");
+            pst.setString(3, "%" + sid + "%");
+        }
+
+        
+        rs = pst.executeQuery();
+
+        
+        while (rs.next()) {
+         String Id = rs.getString("id");
+         String ClassName = rs.getString("class_name");
+         String TeacherName = rs.getString("teacher_name");
+
+         
+         model.addRow(new Object[]{Id, ClassName, TeacherName});
+        }
+
+        } catch (SQLException ex) {
+        Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_txtSearch3KeyTyped
 
     private void tableAssignSubMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableAssignSubMouseClicked
@@ -7048,7 +7318,7 @@ public class User extends javax.swing.JFrame {
         // TODO add your handling code here:
         int selectedRow = tableAssignSub.getSelectedRow();
         if (selectedRow != -1) {
-            int id = (int) tableAssignSub.getValueAt(selectedRow, 0);
+            int id = Integer.parseInt(tableAssignSub.getValueAt(selectedRow, 0).toString());
             deleteAssignedClassSubject(id);
         } else {
             JOptionPane.showMessageDialog(null, "Please select a record to delete.");
@@ -7072,10 +7342,54 @@ public class User extends javax.swing.JFrame {
 
     private void txtSearch5KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch5KeyTyped
         // TODO add your handling code here:
-        DefaultTableModel ob =  (DefaultTableModel) tableAssignSub.getModel();
-        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<> (ob);
-        tableAssignSub.setRowSorter(obj);
-        obj.setRowFilter(RowFilter.regexFilter(txtSearch5.getText()));
+        try {
+           
+            String sid = txtSearch5.getText().trim();
+
+           
+            con = Prototype.getConnection();
+
+           
+            DefaultTableModel model = (DefaultTableModel) tableAssignSub.getModel();
+            model.setRowCount(0); 
+
+            PreparedStatement pst;
+
+           
+            if (sid.isEmpty()) {
+               
+                pst = con.prepareStatement("SELECT cs.id, c.class_name, s.subject_name FROM "
+                       + "class_subject cs "
+                       + "JOIN classes c ON cs.class_id = c.class_id "
+                       + "JOIN subject s ON cs.subject_id = s.subject_id ORDER BY cs.id DESC");
+            }  else {
+               
+                pst = con.prepareStatement("SELECT cs.id, c.class_name, s.subject_name FROM "
+                       + "class_subject cs "
+                       + "JOIN classes c ON cs.class_id = c.class_id "
+                       + "JOIN subject s ON cs.subject_id = s.subject_id "
+                       + "WHERE cs.id LIKE ? OR c.class_name LIKE ? OR s.subject_name LIKE ?");
+                pst.setString(1, "%" + sid + "%");
+                pst.setString(2, "%" + sid + "%");
+                pst.setString(3, "%" + sid + "%");
+            }
+
+           
+            rs = pst.executeQuery();
+
+            while (rs.next()) {
+                String Id = rs.getString("id");
+                String ClassName = rs.getString("class_name");
+                String SubjectName = rs.getString("subject_name");
+
+               
+                model.addRow(new Object[]{Id, ClassName, SubjectName});
+            }
+
+
+        } catch (SQLException ex) {
+           Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_txtSearch5KeyTyped
 
     private void bSettingsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSettingsMouseClicked
@@ -7111,6 +7425,23 @@ public class User extends javax.swing.JFrame {
         BQrCodeGen.setBackground(new Color(0, 0, 102));
         jQrCodeGen.setBackground(new Color(0, 0, 102));
     }//GEN-LAST:event_bSettingsMouseClicked
+
+    private void txtSearch1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch1KeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSearch1KeyReleased
+
+    private void txtSearch8KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearch8KeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSearch8KeyReleased
+
+    private void txtSchoolYearKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSchoolYearKeyTyped
+        // TODO add your handling code here:
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '-') {
+            Toolkit.getDefaultToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtSchoolYearKeyTyped
 
     /**
      * @param args the command line arguments
