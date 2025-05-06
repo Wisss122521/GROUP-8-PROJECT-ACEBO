@@ -49,7 +49,7 @@ public class ChangeUsername extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Student Attendance Monitoring System");
-        setPreferredSize(new java.awt.Dimension(400, 200));
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:4306
--- Generation Time: May 05, 2025 at 03:35 AM
+-- Generation Time: May 06, 2025 at 07:37 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -216,14 +216,6 @@ CREATE TABLE `sms_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `sms_logs`
---
-
-INSERT INTO `sms_logs` (`id`, `parent_number`, `student_name`, `message`, `status`, `created_at`) VALUES
-(117, '639217467275', 'CHAN, MARIE', 'Hello, your child CHAN, MARIE has arrived at school.', 'sent', '2025-04-28 03:19:38'),
-(118, '639217467275', 'CHAN, MARIE', 'Hello, your child CHAN, MARIE has left the school.', 'sent', '2025-04-28 03:24:24');
-
 -- --------------------------------------------------------
 
 --
@@ -283,7 +275,7 @@ CREATE TABLE `teachers` (
 --
 
 INSERT INTO `teachers` (`teacher_id`, `teacher_name`, `gender`) VALUES
-(26, 'Santos, Maria A.', 'MALE');
+(26, 'Santos, Maria A.', 'FEMALE');
 
 --
 -- Indexes for dumped tables
@@ -416,7 +408,7 @@ ALTER TABLE `qrcode`
 -- AUTO_INCREMENT for table `sms_logs`
 --
 ALTER TABLE `sms_logs`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=119;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
 
 --
 -- AUTO_INCREMENT for table `students`

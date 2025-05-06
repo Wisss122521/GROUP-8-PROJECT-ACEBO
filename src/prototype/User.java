@@ -42,6 +42,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -5902,7 +5903,7 @@ public class User extends javax.swing.JFrame {
         // TODO add your handling code here:
         String number = numberTextField.getText();
         String message = messageTextArea.getText();
-
+        
         if (!number.matches("\\d{12}")) {
             JOptionPane.showMessageDialog(null, "Invalid number! Enter exactly 12 digits.", "Input Error", JOptionPane.WARNING_MESSAGE);
             return;
