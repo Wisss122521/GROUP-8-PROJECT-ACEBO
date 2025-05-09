@@ -661,7 +661,9 @@ public class User extends javax.swing.JFrame {
 
                 boolean isFirstLine = true;
                 boolean hasInvalidClass = false;
+                boolean hasDuplicates = false;
                 StringBuilder invalidClasses = new StringBuilder();
+                StringBuilder duplicateEntries = new StringBuilder();
 
                 while ((data = reader.readNext()) != null) {
                     if (isFirstLine) {
@@ -669,14 +671,18 @@ public class User extends javax.swing.JFrame {
                         continue;
                     }
 
-                    if (data.length < 2) {
+                    if (data.length < 3) { 
                         continue;
                     }
 
-                    String studentName = data[0].trim();
-                    String gender = data[1].trim();
-                    String className = data[2].trim();
-                    String parentNumber = data.length > 2 ? data[3].trim() : "";
+                    String studentName = data[0] != null ? data[0].trim() : "";
+                    String gender = data[1] != null ? data[1].trim() : "";
+                    String className = data[2] != null ? data[2].trim() : "";
+                    String parentNumber = data.length > 3 && data[3] != null ? data[3].trim() : "";
+
+                    if (studentName.isEmpty() || gender.isEmpty() || className.isEmpty()) {
+                        continue; 
+                    }
 
                     int classId = -1;
                     String classQuery = "SELECT class_id FROM classes WHERE class_name = ?";
@@ -692,6 +698,18 @@ public class User extends javax.swing.JFrame {
                         }
                     }
 
+                    String duplicateCheck = "SELECT * FROM students WHERE students_name = ? AND class_id = ?";
+                    try (PreparedStatement checkStmt = con.prepareStatement(duplicateCheck)) {
+                        checkStmt.setString(1, studentName);
+                        checkStmt.setInt(2, classId);
+                        ResultSet rs = checkStmt.executeQuery();
+                        if (rs.next()) {
+                            hasDuplicates = true;
+                            duplicateEntries.append("- ").append(studentName).append(" (").append(className).append(")\n");
+                            continue;
+                        }
+                    }
+
                     String insert = "INSERT INTO students (students_name, gender, class_id, parent_contact_number) VALUES (?, ?, ?, ?)";
                     try (PreparedStatement pstmt = con.prepareStatement(insert)) {
                         pstmt.setString(1, studentName);
@@ -702,15 +720,15 @@ public class User extends javax.swing.JFrame {
                     }
                 }
 
+                StringBuilder finalMessage = new StringBuilder("Students imported successfully!");
                 if (hasInvalidClass) {
-                    JOptionPane.showMessageDialog(null,
-                            "Some class names were not found:\n" + invalidClasses.toString()
-                            + "\nStudents with valid classes were still saved.",
-                            "Import Partially Successful", JOptionPane.WARNING_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Students imported successfully!");
+                    finalMessage.append("\n\nSome class names were not found:\n").append(invalidClasses);
+                }
+                if (hasDuplicates) {
+                    finalMessage.append("\n\nSome duplicate students were skipped:\n").append(duplicateEntries);
                 }
 
+                JOptionPane.showMessageDialog(null, finalMessage.toString(), "Import Results", JOptionPane.INFORMATION_MESSAGE);
                 loadStudentsToTable();
 
             } catch (Exception ex) {
@@ -5580,15 +5598,14 @@ public class User extends javax.swing.JFrame {
 
         int students_id = Integer.parseInt(tableStudent.getValueAt(selectedRow, 0).toString());
 
-        String fullname = txtFname.getText().trim();
-        String gender = cmbGender.getSelectedItem().toString();
-        String className = cmbClassId.getSelectedItem().toString();
-        String number = txtNumber.getText().trim();
-        String qrCodeData = txtQrData.getText().trim();
+        String fullname = txtFname.getText() != null ? txtFname.getText().trim() : "";
+        String gender = cmbGender.getSelectedItem() != null ? cmbGender.getSelectedItem().toString() : "";
+        String className = cmbClassId.getSelectedItem() != null ? cmbClassId.getSelectedItem().toString() : "";
+        String number = txtNumber.getText() != null ? txtNumber.getText().trim() : "";
+        String qrCodeData = txtQrData.getText() != null ? txtQrData.getText().trim() : "";
 
         int classId = getClassIdForName(className);
 
-        
         if (fullname.isEmpty() || gender.equals("SELECT SEX") || className.isEmpty() || number.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No input! Please fill in all fields.");
             return;
