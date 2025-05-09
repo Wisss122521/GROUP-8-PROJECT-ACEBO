@@ -99,7 +99,6 @@ public class User extends javax.swing.JFrame {
         loadStudentsWithoutQR();
         loadDashboardData();
         loadStudentsWithQR();
-        loadUsersToTable();
         loadAttendanceData();
         loadStudentsToTable();
         loadClassIds();
@@ -135,7 +134,6 @@ public class User extends javax.swing.JFrame {
 
     public void refreshData() {
         loadDashboardData();
-        loadUsersToTable();
         loadStudentsWithoutQR();
         loadStudentsWithQR();
         loadAttendanceData();
@@ -1563,42 +1561,6 @@ public class User extends javax.swing.JFrame {
         }
     }
 
-    private void fetchUserData(int userId) {
-        String query = "SELECT * FROM login_table WHERE user_id = ?";
-
-        try {
-            con = Prototype.getConnection();
-            PreparedStatement pst = con.prepareStatement(query);
-
-            pst.setInt(1, userId);
-            ResultSet rs = pst.executeQuery();
-
-            if (rs.next()) {
-                fname.setText(rs.getString("firstname"));
-                mname.setText(rs.getString("middlename"));
-                lname.setText(rs.getString("lastname"));
-                gend.setText(rs.getString("gender"));
-                em.setText(rs.getString("email"));
-                contactnumber.setText(rs.getString("contact"));
-                user.setText(rs.getString("username"));
-                pass.setText(rs.getString("password"));
-                jComboRole.setSelectedItem(rs.getString("role"));
-
-                String ageValue = rs.getString("age");
-
-                try {
-                    int age = Integer.parseInt(ageValue);
-                    ages.setText(String.valueOf(age));
-                } catch (NumberFormatException e) {
-                    ages.setText("");
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void fetchTeachersData(int teacherId) {
         String query = "SELECT * FROM teachers WHERE teacher_id = ?";
 
@@ -1633,30 +1595,6 @@ public class User extends javax.swing.JFrame {
                     rs.getInt("teacher_id"),
                     rs.getString("teacher_name"),
                     rs.getString("gender"),};
-                model.addRow(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void loadUsersToTable() {
-        DefaultTableModel model = (DefaultTableModel) tableAccount.getModel();
-        model.setRowCount(0);
-
-        String query = "SELECT user_id, email, contact, username, role FROM login_table ORDER BY user_id DESC";
-
-        try (
-                Connection con = Prototype.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                Object[] row = {
-                    rs.getInt("user_id"),
-                    rs.getString("email"),
-                    rs.getString("contact"),
-                    rs.getString("username"),
-                    rs.getString("role")
-                };
                 model.addRow(row);
             }
         } catch (SQLException e) {
@@ -1808,6 +1746,21 @@ public class User extends javax.swing.JFrame {
         txtQrData = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         cmbGender = new javax.swing.JComboBox<>();
+        iTeachers = new javax.swing.JPanel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        TableTeachers = new javax.swing.JTable();
+        jLabel6 = new javax.swing.JLabel();
+        Tcfname = new javax.swing.JTextField();
+        txtSearch2 = new javax.swing.JTextField();
+        jLabel22 = new javax.swing.JLabel();
+        btnAdd2 = new javax.swing.JButton();
+        btnUpdate2 = new javax.swing.JButton();
+        btnDelete2 = new javax.swing.JButton();
+        jLabel41 = new javax.swing.JLabel();
+        filler8 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        jLabel53 = new javax.swing.JLabel();
+        cmbGender3 = new javax.swing.JComboBox<>();
         iClasses = new javax.swing.JPanel();
         jScrollPane8 = new javax.swing.JScrollPane();
         tableClasses = new javax.swing.JTable();
@@ -1825,6 +1778,49 @@ public class User extends javax.swing.JFrame {
         jLabel52 = new javax.swing.JLabel();
         filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         comboGrade = new javax.swing.JComboBox<>();
+        iSubjects = new javax.swing.JPanel();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        tableSubject = new javax.swing.JTable();
+        jLabel12 = new javax.swing.JLabel();
+        Subjectname = new javax.swing.JTextField();
+        btnAdd3 = new javax.swing.JButton();
+        btnUpdate3 = new javax.swing.JButton();
+        btnDelete3 = new javax.swing.JButton();
+        txtSearch7 = new javax.swing.JTextField();
+        jLabel38 = new javax.swing.JLabel();
+        jLabel42 = new javax.swing.JLabel();
+        filler10 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        filler11 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        iAssignSub = new javax.swing.JPanel();
+        jScrollPane9 = new javax.swing.JScrollPane();
+        tableAssignSub = new javax.swing.JTable();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        cmbClass = new javax.swing.JComboBox<>();
+        cmbSubject = new javax.swing.JComboBox<>();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        txtSearch5 = new javax.swing.JTextField();
+        jLabel29 = new javax.swing.JLabel();
+        jLabel44 = new javax.swing.JLabel();
+        filler14 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        filler15 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        iAssignTc = new javax.swing.JPanel();
+        jScrollPane10 = new javax.swing.JScrollPane();
+        tableAssignTeacher = new javax.swing.JTable();
+        jLabel26 = new javax.swing.JLabel();
+        jLabel27 = new javax.swing.JLabel();
+        cmbClass1 = new javax.swing.JComboBox<>();
+        cmbsubject1 = new javax.swing.JComboBox<>();
+        jButton6 = new javax.swing.JButton();
+        jButton8 = new javax.swing.JButton();
+        jButton10 = new javax.swing.JButton();
+        txtSearch3 = new javax.swing.JTextField();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel43 = new javax.swing.JLabel();
+        filler12 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        filler13 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         iReports = new javax.swing.JPanel();
         jLabel15 = new javax.swing.JLabel();
         dateChooserFromDate = new com.toedter.calendar.JDateChooser();
@@ -1845,112 +1841,6 @@ public class User extends javax.swing.JFrame {
         filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         jLabel8 = new javax.swing.JLabel();
         cmbGender2 = new javax.swing.JComboBox<>();
-        iNotification = new javax.swing.JPanel();
-        jScrollPane12 = new javax.swing.JScrollPane();
-        tableSms1 = new javax.swing.JTable();
-        jLabel30 = new javax.swing.JLabel();
-        numberTextField = new javax.swing.JTextField();
-        jLabel31 = new javax.swing.JLabel();
-        jScrollPane13 = new javax.swing.JScrollPane();
-        messageTextArea = new javax.swing.JTextArea();
-        bSend = new javax.swing.JButton();
-        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        iUsers = new javax.swing.JPanel();
-        btnAdd = new javax.swing.JButton();
-        btnUpdate = new javax.swing.JButton();
-        btnDelete = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tableAccount = new javax.swing.JTable();
-        jPanel1 = new javax.swing.JPanel();
-        fname = new javax.swing.JTextField();
-        jFirstname = new javax.swing.JLabel();
-        jMiddlename = new javax.swing.JLabel();
-        mname = new javax.swing.JTextField();
-        lname = new javax.swing.JTextField();
-        jLastname = new javax.swing.JLabel();
-        jGender = new javax.swing.JLabel();
-        gend = new javax.swing.JTextField();
-        em = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        ages = new javax.swing.JTextField();
-        jAge = new javax.swing.JLabel();
-        jContact = new javax.swing.JLabel();
-        contactnumber = new javax.swing.JTextField();
-        user = new javax.swing.JTextField();
-        jUsername = new javax.swing.JLabel();
-        jPassword = new javax.swing.JLabel();
-        pass = new javax.swing.JTextField();
-        jComboRole = new javax.swing.JComboBox<>();
-        jRole = new javax.swing.JLabel();
-        txtSearch = new javax.swing.JTextField();
-        jLabel40 = new javax.swing.JLabel();
-        iTeachers = new javax.swing.JPanel();
-        jScrollPane6 = new javax.swing.JScrollPane();
-        TableTeachers = new javax.swing.JTable();
-        jLabel6 = new javax.swing.JLabel();
-        Tcfname = new javax.swing.JTextField();
-        txtSearch2 = new javax.swing.JTextField();
-        jLabel22 = new javax.swing.JLabel();
-        btnAdd2 = new javax.swing.JButton();
-        btnUpdate2 = new javax.swing.JButton();
-        btnDelete2 = new javax.swing.JButton();
-        jLabel41 = new javax.swing.JLabel();
-        filler8 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        jLabel53 = new javax.swing.JLabel();
-        cmbGender3 = new javax.swing.JComboBox<>();
-        iSubjects = new javax.swing.JPanel();
-        jScrollPane7 = new javax.swing.JScrollPane();
-        tableSubject = new javax.swing.JTable();
-        jLabel12 = new javax.swing.JLabel();
-        Subjectname = new javax.swing.JTextField();
-        btnAdd3 = new javax.swing.JButton();
-        btnUpdate3 = new javax.swing.JButton();
-        btnDelete3 = new javax.swing.JButton();
-        txtSearch7 = new javax.swing.JTextField();
-        jLabel38 = new javax.swing.JLabel();
-        jLabel42 = new javax.swing.JLabel();
-        filler10 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        filler11 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        iAssignTc = new javax.swing.JPanel();
-        jScrollPane10 = new javax.swing.JScrollPane();
-        tableAssignTeacher = new javax.swing.JTable();
-        jLabel26 = new javax.swing.JLabel();
-        jLabel27 = new javax.swing.JLabel();
-        cmbClass1 = new javax.swing.JComboBox<>();
-        cmbsubject1 = new javax.swing.JComboBox<>();
-        jButton6 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
-        txtSearch3 = new javax.swing.JTextField();
-        jLabel23 = new javax.swing.JLabel();
-        jLabel43 = new javax.swing.JLabel();
-        filler12 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        filler13 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        iAssignSub = new javax.swing.JPanel();
-        jScrollPane9 = new javax.swing.JScrollPane();
-        tableAssignSub = new javax.swing.JTable();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel25 = new javax.swing.JLabel();
-        cmbClass = new javax.swing.JComboBox<>();
-        cmbSubject = new javax.swing.JComboBox<>();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        txtSearch5 = new javax.swing.JTextField();
-        jLabel29 = new javax.swing.JLabel();
-        jLabel44 = new javax.swing.JLabel();
-        filler14 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        filler15 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
-        iDropout = new javax.swing.JPanel();
-        jScrollPane14 = new javax.swing.JScrollPane();
-        tableDropout = new javax.swing.JTable();
-        jButton11 = new javax.swing.JButton();
-        txtSearch6 = new javax.swing.JTextField();
-        jLabel32 = new javax.swing.JLabel();
-        jLabel45 = new javax.swing.JLabel();
         iQrCodeGen = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
@@ -1970,6 +1860,23 @@ public class User extends javax.swing.JFrame {
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         cboxNoQr = new javax.swing.JComboBox<>();
+        iNotification = new javax.swing.JPanel();
+        jScrollPane12 = new javax.swing.JScrollPane();
+        tableSms1 = new javax.swing.JTable();
+        jLabel30 = new javax.swing.JLabel();
+        numberTextField = new javax.swing.JTextField();
+        jLabel31 = new javax.swing.JLabel();
+        jScrollPane13 = new javax.swing.JScrollPane();
+        messageTextArea = new javax.swing.JTextArea();
+        bSend = new javax.swing.JButton();
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
+        iDropout = new javax.swing.JPanel();
+        jScrollPane14 = new javax.swing.JScrollPane();
+        tableDropout = new javax.swing.JTable();
+        jButton11 = new javax.swing.JButton();
+        txtSearch6 = new javax.swing.JTextField();
+        jLabel32 = new javax.swing.JLabel();
+        jLabel45 = new javax.swing.JLabel();
         iSettings = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -3087,6 +2994,179 @@ public class User extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("tab3", iStudents);
 
+        iTeachers.setBackground(new java.awt.Color(255, 255, 255));
+        iTeachers.setLayout(new java.awt.GridBagLayout());
+
+        TableTeachers.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        TableTeachers.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Teacher Id", "Teacher Name", "Sex"
+            }
+        ));
+        TableTeachers.setRowHeight(30);
+        TableTeachers.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                TableTeachersMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                TableTeachersMouseEntered(evt);
+            }
+        });
+        jScrollPane6.setViewportView(TableTeachers);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        iTeachers.add(jScrollPane6, gridBagConstraints);
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jLabel6.setText("Fullname:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 0);
+        iTeachers.add(jLabel6, gridBagConstraints);
+
+        Tcfname.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iTeachers.add(Tcfname, gridBagConstraints);
+
+        txtSearch2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtSearch2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearch2ActionPerformed(evt);
+            }
+        });
+        txtSearch2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSearch2KeyTyped(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 150;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iTeachers.add(txtSearch2, gridBagConstraints);
+
+        jLabel22.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
+        iTeachers.add(jLabel22, gridBagConstraints);
+
+        btnAdd2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        btnAdd2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/add.png"))); // NOI18N
+        btnAdd2.setText("ADD");
+        btnAdd2.setIconTextGap(20);
+        btnAdd2.setMaximumSize(new java.awt.Dimension(177, 51));
+        btnAdd2.setMinimumSize(new java.awt.Dimension(177, 51));
+        btnAdd2.setPreferredSize(new java.awt.Dimension(177, 51));
+        btnAdd2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAdd2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iTeachers.add(btnAdd2, gridBagConstraints);
+
+        btnUpdate2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        btnUpdate2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/update.png"))); // NOI18N
+        btnUpdate2.setText("UPDATE");
+        btnUpdate2.setIconTextGap(20);
+        btnUpdate2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdate2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iTeachers.add(btnUpdate2, gridBagConstraints);
+
+        btnDelete2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        btnDelete2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
+        btnDelete2.setText("DELETE");
+        btnDelete2.setIconTextGap(20);
+        btnDelete2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDelete2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iTeachers.add(btnDelete2, gridBagConstraints);
+
+        jLabel41.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel41.setText("SEARCH:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iTeachers.add(jLabel41, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 2.0;
+        iTeachers.add(filler8, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        iTeachers.add(filler9, gridBagConstraints);
+
+        jLabel53.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jLabel53.setText("SEX:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        iTeachers.add(jLabel53, gridBagConstraints);
+
+        cmbGender3.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        cmbGender3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SELECT SEX", "MALE", "FEMALE" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iTeachers.add(cmbGender3, gridBagConstraints);
+
+        jTabbedPane1.addTab("tab9", iTeachers);
+
         iClasses.setBackground(new java.awt.Color(255, 255, 255));
         iClasses.setLayout(new java.awt.GridBagLayout());
 
@@ -3286,6 +3366,503 @@ public class User extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("tab4", iClasses);
 
+        iSubjects.setBackground(new java.awt.Color(255, 255, 255));
+        iSubjects.setLayout(new java.awt.GridBagLayout());
+
+        tableSubject.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        tableSubject.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Subject Id", "Subject Name"
+            }
+        ));
+        tableSubject.setRowHeight(30);
+        tableSubject.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableSubjectMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                tableSubjectMouseEntered(evt);
+            }
+        });
+        jScrollPane7.setViewportView(tableSubject);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        iSubjects.add(jScrollPane7, gridBagConstraints);
+
+        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jLabel12.setText("Subject:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 70, 0, 0);
+        iSubjects.add(jLabel12, gridBagConstraints);
+
+        Subjectname.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iSubjects.add(Subjectname, gridBagConstraints);
+
+        btnAdd3.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        btnAdd3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/add.png"))); // NOI18N
+        btnAdd3.setText("ADD");
+        btnAdd3.setIconTextGap(20);
+        btnAdd3.setMaximumSize(new java.awt.Dimension(177, 51));
+        btnAdd3.setMinimumSize(new java.awt.Dimension(177, 51));
+        btnAdd3.setPreferredSize(new java.awt.Dimension(177, 51));
+        btnAdd3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAdd3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iSubjects.add(btnAdd3, gridBagConstraints);
+
+        btnUpdate3.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        btnUpdate3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/update.png"))); // NOI18N
+        btnUpdate3.setText("UPDATE");
+        btnUpdate3.setIconTextGap(20);
+        btnUpdate3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdate3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iSubjects.add(btnUpdate3, gridBagConstraints);
+
+        btnDelete3.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        btnDelete3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
+        btnDelete3.setText("DELETE");
+        btnDelete3.setIconTextGap(20);
+        btnDelete3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDelete3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iSubjects.add(btnDelete3, gridBagConstraints);
+
+        txtSearch7.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtSearch7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearch7ActionPerformed(evt);
+            }
+        });
+        txtSearch7.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSearch7KeyTyped(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 150;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iSubjects.add(txtSearch7, gridBagConstraints);
+
+        jLabel38.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel38.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
+        iSubjects.add(jLabel38, gridBagConstraints);
+
+        jLabel42.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel42.setText("SEARCH:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iSubjects.add(jLabel42, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        iSubjects.add(filler10, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 3.0;
+        iSubjects.add(filler11, gridBagConstraints);
+
+        jTabbedPane1.addTab("tab10", iSubjects);
+
+        iAssignSub.setBackground(new java.awt.Color(255, 255, 255));
+        iAssignSub.setLayout(new java.awt.GridBagLayout());
+
+        tableAssignSub.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        tableAssignSub.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null}
+            },
+            new String [] {
+                "Id", "Class Name", "Subject Name"
+            }
+        ));
+        tableAssignSub.setRowHeight(30);
+        tableAssignSub.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableAssignSubMouseClicked(evt);
+            }
+        });
+        jScrollPane9.setViewportView(tableAssignSub);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        iAssignSub.add(jScrollPane9, gridBagConstraints);
+
+        jLabel17.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jLabel17.setText("Class:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        iAssignSub.add(jLabel17, gridBagConstraints);
+
+        jLabel25.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jLabel25.setText("Subject:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iAssignSub.add(jLabel25, gridBagConstraints);
+
+        cmbClass.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        cmbClass.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbClass.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbClassActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iAssignSub.add(cmbClass, gridBagConstraints);
+
+        cmbSubject.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        cmbSubject.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iAssignSub.add(cmbSubject, gridBagConstraints);
+
+        jButton2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jButton2.setText("ASSIGN");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iAssignSub.add(jButton2, gridBagConstraints);
+
+        jButton3.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jButton3.setText("DELETE");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iAssignSub.add(jButton3, gridBagConstraints);
+
+        jButton5.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jButton5.setText("UPDATE");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iAssignSub.add(jButton5, gridBagConstraints);
+
+        txtSearch5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        txtSearch5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearch5ActionPerformed(evt);
+            }
+        });
+        txtSearch5.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSearch5KeyTyped(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 150;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iAssignSub.add(txtSearch5, gridBagConstraints);
+
+        jLabel29.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel29.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
+        iAssignSub.add(jLabel29, gridBagConstraints);
+
+        jLabel44.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel44.setText("SEARCH:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iAssignSub.add(jLabel44, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        iAssignSub.add(filler14, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 2.0;
+        iAssignSub.add(filler15, gridBagConstraints);
+
+        jTabbedPane1.addTab("tab11", iAssignSub);
+
+        iAssignTc.setBackground(new java.awt.Color(255, 255, 255));
+        iAssignTc.setLayout(new java.awt.GridBagLayout());
+
+        tableAssignTeacher.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        tableAssignTeacher.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null}
+            },
+            new String [] {
+                "Id", "Class Name", "Teacher Name"
+            }
+        ));
+        tableAssignTeacher.setRowHeight(30);
+        tableAssignTeacher.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableAssignTeacherMouseClicked(evt);
+            }
+        });
+        jScrollPane10.setViewportView(tableAssignTeacher);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        iAssignTc.add(jScrollPane10, gridBagConstraints);
+
+        jLabel26.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jLabel26.setText("Class:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        iAssignTc.add(jLabel26, gridBagConstraints);
+
+        jLabel27.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jLabel27.setText("Teacher:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iAssignTc.add(jLabel27, gridBagConstraints);
+
+        cmbClass1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        cmbClass1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbClass1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbClass1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iAssignTc.add(cmbClass1, gridBagConstraints);
+
+        cmbsubject1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        cmbsubject1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbsubject1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbsubject1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iAssignTc.add(cmbsubject1, gridBagConstraints);
+
+        jButton6.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jButton6.setText("ASSIGN");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iAssignTc.add(jButton6, gridBagConstraints);
+
+        jButton8.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jButton8.setText("DELETE");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iAssignTc.add(jButton8, gridBagConstraints);
+
+        jButton10.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jButton10.setText("UPDATE");
+        jButton10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton10ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        iAssignTc.add(jButton10, gridBagConstraints);
+
+        txtSearch3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        txtSearch3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearch3ActionPerformed(evt);
+            }
+        });
+        txtSearch3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSearch3KeyTyped(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 150;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iAssignTc.add(txtSearch3, gridBagConstraints);
+
+        jLabel23.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
+        iAssignTc.add(jLabel23, gridBagConstraints);
+
+        jLabel43.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel43.setText("SEARCH:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iAssignTc.add(jLabel43, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 2.0;
+        iAssignTc.add(filler12, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        iAssignTc.add(filler13, gridBagConstraints);
+
+        jTabbedPane1.addTab("tab12", iAssignTc);
+
         iReports.setBackground(new java.awt.Color(255, 255, 255));
         iReports.setLayout(new java.awt.GridBagLayout());
 
@@ -3483,1165 +4060,6 @@ public class User extends javax.swing.JFrame {
         iReports.add(cmbGender2, gridBagConstraints);
 
         jTabbedPane1.addTab("tab13", iReports);
-
-        iNotification.setBackground(new java.awt.Color(255, 255, 255));
-        iNotification.setLayout(new java.awt.GridBagLayout());
-
-        tableSms1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        tableSms1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Parent Number", "Student Name", "Message", "Created At", "Status"
-            }
-        ));
-        tableSms1.setRowHeight(30);
-        jScrollPane12.setViewportView(tableSms1);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        iNotification.add(jScrollPane12, gridBagConstraints);
-
-        jLabel30.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel30.setText("Number:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        iNotification.add(jLabel30, gridBagConstraints);
-
-        numberTextField.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        numberTextField.setText("639");
-        numberTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                numberTextFieldActionPerformed(evt);
-            }
-        });
-        numberTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                numberTextFieldKeyTyped(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.ipadx = 140;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        iNotification.add(numberTextField, gridBagConstraints);
-
-        jLabel31.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel31.setText("Message:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 50, 0, 0);
-        iNotification.add(jLabel31, gridBagConstraints);
-
-        messageTextArea.setColumns(20);
-        messageTextArea.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        messageTextArea.setRows(5);
-        jScrollPane13.setViewportView(messageTextArea);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
-        iNotification.add(jScrollPane13, gridBagConstraints);
-
-        bSend.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        bSend.setText("SEND");
-        bSend.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bSendActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 200;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.weighty = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
-        iNotification.add(bSend, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints.weighty = 0.1;
-        iNotification.add(filler3, gridBagConstraints);
-
-        jTabbedPane1.addTab("tab8", iNotification);
-
-        iUsers.setBackground(new java.awt.Color(255, 255, 255));
-
-        btnAdd.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/add.png"))); // NOI18N
-        btnAdd.setText("ADD");
-        btnAdd.setIconTextGap(20);
-        btnAdd.setMaximumSize(new java.awt.Dimension(177, 51));
-        btnAdd.setMinimumSize(new java.awt.Dimension(177, 51));
-        btnAdd.setPreferredSize(new java.awt.Dimension(177, 51));
-        btnAdd.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddActionPerformed(evt);
-            }
-        });
-
-        btnUpdate.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/update.png"))); // NOI18N
-        btnUpdate.setText("UPDATE");
-        btnUpdate.setIconTextGap(20);
-        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUpdateActionPerformed(evt);
-            }
-        });
-
-        btnDelete.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
-        btnDelete.setText("DELETE");
-        btnDelete.setIconTextGap(20);
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
-            }
-        });
-
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
-
-        tableAccount.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        tableAccount.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "User Id", "Email", "Contact", "Username", "Role"
-            }
-        ));
-        tableAccount.setRowHeight(30);
-        tableAccount.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableAccountMouseClicked(evt);
-            }
-        });
-        jScrollPane2.setViewportView(tableAccount);
-
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-
-        fname.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-
-        jFirstname.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jFirstname.setText("Firstname:");
-
-        jMiddlename.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jMiddlename.setText("Middlename:");
-
-        mname.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        mname.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mnameActionPerformed(evt);
-            }
-        });
-
-        lname.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-
-        jLastname.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLastname.setText("Lastname:");
-
-        jGender.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jGender.setText("Gender:");
-
-        gend.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-
-        em.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel5.setText("Email:");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jMiddlename)
-                            .addComponent(jFirstname))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(mname, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(fname, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addGap(59, 59, 59)
-                                    .addComponent(jGender))
-                                .addComponent(jLastname, javax.swing.GroupLayout.Alignment.TRAILING)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(gend)
-                            .addComponent(lname)
-                            .addComponent(em, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jFirstname, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(fname, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jMiddlename, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(mname, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLastname)
-                    .addComponent(lname, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jGender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(gend, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(em, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
-
-        ages.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-
-        jAge.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jAge.setText("Age:");
-
-        jContact.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jContact.setText("Contact:");
-
-        contactnumber.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        contactnumber.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                contactnumberActionPerformed(evt);
-            }
-        });
-
-        user.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-
-        jUsername.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jUsername.setText("Username:");
-
-        jPassword.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jPassword.setText("Password:");
-
-        pass.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-
-        jComboRole.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jComboRole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Admin", "Teacher" }));
-
-        jRole.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jRole.setText("Role:");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jUsername)
-                            .addComponent(jPassword)
-                            .addComponent(jRole))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(user, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(pass)
-                                .addComponent(jComboRole, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(27, 27, 27)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jContact)
-                            .addComponent(jAge))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(contactnumber, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ages, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(ages, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jAge, javax.swing.GroupLayout.Alignment.LEADING))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jContact)
-                    .addComponent(contactnumber, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(user, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jUsername))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pass, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPassword))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jRole)
-                    .addComponent(jComboRole, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
-
-        txtSearch.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtSearchKeyTyped(evt);
-            }
-        });
-
-        jLabel40.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel40.setText("SEARCH:");
-
-        javax.swing.GroupLayout iUsersLayout = new javax.swing.GroupLayout(iUsers);
-        iUsers.setLayout(iUsersLayout);
-        iUsersLayout.setHorizontalGroup(
-            iUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(iUsersLayout.createSequentialGroup()
-                .addGroup(iUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(iUsersLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1677, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(iUsersLayout.createSequentialGroup()
-                        .addGap(489, 489, 489)
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnUpdate)
-                        .addGap(28, 28, 28)
-                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(iUsersLayout.createSequentialGroup()
-                        .addGap(381, 381, 381)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(97, 97, 97)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, iUsersLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel40)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4)
-                .addGap(48, 48, 48))
-        );
-        iUsersLayout.setVerticalGroup(
-            iUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(iUsersLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addGroup(iUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(iUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel40, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(iUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(47, 47, 47)
-                .addGroup(iUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnUpdate)
-                    .addComponent(btnDelete)
-                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(49, 49, 49)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 483, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
-        jTabbedPane1.addTab("tab6", iUsers);
-
-        iTeachers.setBackground(new java.awt.Color(255, 255, 255));
-        iTeachers.setLayout(new java.awt.GridBagLayout());
-
-        TableTeachers.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        TableTeachers.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Teacher Id", "Teacher Name", "Sex"
-            }
-        ));
-        TableTeachers.setRowHeight(30);
-        TableTeachers.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                TableTeachersMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                TableTeachersMouseEntered(evt);
-            }
-        });
-        jScrollPane6.setViewportView(TableTeachers);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        iTeachers.add(jScrollPane6, gridBagConstraints);
-
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel6.setText("Fullname:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 0);
-        iTeachers.add(jLabel6, gridBagConstraints);
-
-        Tcfname.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        iTeachers.add(Tcfname, gridBagConstraints);
-
-        txtSearch2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        txtSearch2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearch2ActionPerformed(evt);
-            }
-        });
-        txtSearch2.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtSearch2KeyTyped(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipadx = 150;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iTeachers.add(txtSearch2, gridBagConstraints);
-
-        jLabel22.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
-        iTeachers.add(jLabel22, gridBagConstraints);
-
-        btnAdd2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnAdd2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/add.png"))); // NOI18N
-        btnAdd2.setText("ADD");
-        btnAdd2.setIconTextGap(20);
-        btnAdd2.setMaximumSize(new java.awt.Dimension(177, 51));
-        btnAdd2.setMinimumSize(new java.awt.Dimension(177, 51));
-        btnAdd2.setPreferredSize(new java.awt.Dimension(177, 51));
-        btnAdd2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAdd2ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iTeachers.add(btnAdd2, gridBagConstraints);
-
-        btnUpdate2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnUpdate2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/update.png"))); // NOI18N
-        btnUpdate2.setText("UPDATE");
-        btnUpdate2.setIconTextGap(20);
-        btnUpdate2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUpdate2ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iTeachers.add(btnUpdate2, gridBagConstraints);
-
-        btnDelete2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnDelete2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
-        btnDelete2.setText("DELETE");
-        btnDelete2.setIconTextGap(20);
-        btnDelete2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDelete2ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iTeachers.add(btnDelete2, gridBagConstraints);
-
-        jLabel41.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel41.setText("SEARCH:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iTeachers.add(jLabel41, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 2.0;
-        iTeachers.add(filler8, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        iTeachers.add(filler9, gridBagConstraints);
-
-        jLabel53.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel53.setText("SEX:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        iTeachers.add(jLabel53, gridBagConstraints);
-
-        cmbGender3.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        cmbGender3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SELECT SEX", "MALE", "FEMALE" }));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        iTeachers.add(cmbGender3, gridBagConstraints);
-
-        jTabbedPane1.addTab("tab9", iTeachers);
-
-        iSubjects.setBackground(new java.awt.Color(255, 255, 255));
-        iSubjects.setLayout(new java.awt.GridBagLayout());
-
-        tableSubject.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        tableSubject.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
-            },
-            new String [] {
-                "Subject Id", "Subject Name"
-            }
-        ));
-        tableSubject.setRowHeight(30);
-        tableSubject.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableSubjectMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                tableSubjectMouseEntered(evt);
-            }
-        });
-        jScrollPane7.setViewportView(tableSubject);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        iSubjects.add(jScrollPane7, gridBagConstraints);
-
-        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel12.setText("Subject:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(0, 70, 0, 0);
-        iSubjects.add(jLabel12, gridBagConstraints);
-
-        Subjectname.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        iSubjects.add(Subjectname, gridBagConstraints);
-
-        btnAdd3.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnAdd3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/add.png"))); // NOI18N
-        btnAdd3.setText("ADD");
-        btnAdd3.setIconTextGap(20);
-        btnAdd3.setMaximumSize(new java.awt.Dimension(177, 51));
-        btnAdd3.setMinimumSize(new java.awt.Dimension(177, 51));
-        btnAdd3.setPreferredSize(new java.awt.Dimension(177, 51));
-        btnAdd3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAdd3ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iSubjects.add(btnAdd3, gridBagConstraints);
-
-        btnUpdate3.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnUpdate3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/update.png"))); // NOI18N
-        btnUpdate3.setText("UPDATE");
-        btnUpdate3.setIconTextGap(20);
-        btnUpdate3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUpdate3ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iSubjects.add(btnUpdate3, gridBagConstraints);
-
-        btnDelete3.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        btnDelete3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
-        btnDelete3.setText("DELETE");
-        btnDelete3.setIconTextGap(20);
-        btnDelete3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDelete3ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iSubjects.add(btnDelete3, gridBagConstraints);
-
-        txtSearch7.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        txtSearch7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearch7ActionPerformed(evt);
-            }
-        });
-        txtSearch7.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtSearch7KeyTyped(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipadx = 150;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iSubjects.add(txtSearch7, gridBagConstraints);
-
-        jLabel38.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel38.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
-        iSubjects.add(jLabel38, gridBagConstraints);
-
-        jLabel42.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel42.setText("SEARCH:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iSubjects.add(jLabel42, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        iSubjects.add(filler10, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 3.0;
-        iSubjects.add(filler11, gridBagConstraints);
-
-        jTabbedPane1.addTab("tab10", iSubjects);
-
-        iAssignTc.setBackground(new java.awt.Color(255, 255, 255));
-        iAssignTc.setLayout(new java.awt.GridBagLayout());
-
-        tableAssignTeacher.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        tableAssignTeacher.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null}
-            },
-            new String [] {
-                "Id", "Class Name", "Teacher Name"
-            }
-        ));
-        tableAssignTeacher.setRowHeight(30);
-        tableAssignTeacher.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableAssignTeacherMouseClicked(evt);
-            }
-        });
-        jScrollPane10.setViewportView(tableAssignTeacher);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        iAssignTc.add(jScrollPane10, gridBagConstraints);
-
-        jLabel26.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel26.setText("Class:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        iAssignTc.add(jLabel26, gridBagConstraints);
-
-        jLabel27.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel27.setText("Teacher:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iAssignTc.add(jLabel27, gridBagConstraints);
-
-        cmbClass1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        cmbClass1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        cmbClass1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbClass1ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        iAssignTc.add(cmbClass1, gridBagConstraints);
-
-        cmbsubject1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        cmbsubject1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        cmbsubject1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbsubject1ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iAssignTc.add(cmbsubject1, gridBagConstraints);
-
-        jButton6.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jButton6.setText("ASSIGN");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iAssignTc.add(jButton6, gridBagConstraints);
-
-        jButton8.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jButton8.setText("DELETE");
-        jButton8.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton8ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iAssignTc.add(jButton8, gridBagConstraints);
-
-        jButton10.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jButton10.setText("UPDATE");
-        jButton10.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton10ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iAssignTc.add(jButton10, gridBagConstraints);
-
-        txtSearch3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        txtSearch3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearch3ActionPerformed(evt);
-            }
-        });
-        txtSearch3.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtSearch3KeyTyped(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipadx = 150;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iAssignTc.add(txtSearch3, gridBagConstraints);
-
-        jLabel23.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
-        iAssignTc.add(jLabel23, gridBagConstraints);
-
-        jLabel43.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel43.setText("SEARCH:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iAssignTc.add(jLabel43, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 2.0;
-        iAssignTc.add(filler12, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        iAssignTc.add(filler13, gridBagConstraints);
-
-        jTabbedPane1.addTab("tab12", iAssignTc);
-
-        iAssignSub.setBackground(new java.awt.Color(255, 255, 255));
-        iAssignSub.setLayout(new java.awt.GridBagLayout());
-
-        tableAssignSub.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        tableAssignSub.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null}
-            },
-            new String [] {
-                "Id", "Class Name", "Subject Name"
-            }
-        ));
-        tableAssignSub.setRowHeight(30);
-        tableAssignSub.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableAssignSubMouseClicked(evt);
-            }
-        });
-        jScrollPane9.setViewportView(tableAssignSub);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        iAssignSub.add(jScrollPane9, gridBagConstraints);
-
-        jLabel17.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel17.setText("Class:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        iAssignSub.add(jLabel17, gridBagConstraints);
-
-        jLabel25.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel25.setText("Subject:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iAssignSub.add(jLabel25, gridBagConstraints);
-
-        cmbClass.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        cmbClass.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        cmbClass.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbClassActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        iAssignSub.add(cmbClass, gridBagConstraints);
-
-        cmbSubject.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        cmbSubject.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iAssignSub.add(cmbSubject, gridBagConstraints);
-
-        jButton2.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jButton2.setText("ASSIGN");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        iAssignSub.add(jButton2, gridBagConstraints);
-
-        jButton3.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jButton3.setText("DELETE");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iAssignSub.add(jButton3, gridBagConstraints);
-
-        jButton5.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jButton5.setText("UPDATE");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
-        iAssignSub.add(jButton5, gridBagConstraints);
-
-        txtSearch5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        txtSearch5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearch5ActionPerformed(evt);
-            }
-        });
-        txtSearch5.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtSearch5KeyTyped(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipadx = 150;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iAssignSub.add(txtSearch5, gridBagConstraints);
-
-        jLabel29.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel29.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
-        iAssignSub.add(jLabel29, gridBagConstraints);
-
-        jLabel44.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel44.setText("SEARCH:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iAssignSub.add(jLabel44, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        iAssignSub.add(filler14, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 2.0;
-        iAssignSub.add(filler15, gridBagConstraints);
-
-        jTabbedPane1.addTab("tab11", iAssignSub);
-
-        iDropout.setBackground(new java.awt.Color(255, 255, 255));
-        iDropout.setLayout(new java.awt.GridBagLayout());
-
-        tableDropout.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        tableDropout.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "Student Id", "Student Name", "Sex", "Class Name", "Parent Number", "Qr Code Data", "Status"
-            }
-        ));
-        tableDropout.setRowHeight(30);
-        jScrollPane14.setViewportView(tableDropout);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 1663;
-        gridBagConstraints.ipady = 705;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(18, 6, 6, 2);
-        iDropout.add(jScrollPane14, gridBagConstraints);
-
-        jButton11.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jButton11.setText("ACTIVE");
-        jButton11.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton11ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 18, 0, 0);
-        iDropout.add(jButton11, gridBagConstraints);
-
-        txtSearch6.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        txtSearch6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearch6ActionPerformed(evt);
-            }
-        });
-        txtSearch6.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtSearch6KeyTyped(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 200;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 6, 0, 0);
-        iDropout.add(txtSearch6, gridBagConstraints);
-
-        jLabel32.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 6, 0, 10);
-        iDropout.add(jLabel32, gridBagConstraints);
-
-        jLabel45.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel45.setText("SEARCH:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
-        iDropout.add(jLabel45, gridBagConstraints);
-
-        jTabbedPane1.addTab("tab13", iDropout);
 
         iQrCodeGen.setBackground(new java.awt.Color(255, 255, 255));
         iQrCodeGen.setLayout(new java.awt.GridBagLayout());
@@ -4885,6 +4303,198 @@ public class User extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("tab9", iQrCodeGen);
 
+        iNotification.setBackground(new java.awt.Color(255, 255, 255));
+        iNotification.setLayout(new java.awt.GridBagLayout());
+
+        tableSms1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        tableSms1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Parent Number", "Student Name", "Message", "Created At", "Status"
+            }
+        ));
+        tableSms1.setRowHeight(30);
+        jScrollPane12.setViewportView(tableSms1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        iNotification.add(jScrollPane12, gridBagConstraints);
+
+        jLabel30.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel30.setText("Number:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
+        iNotification.add(jLabel30, gridBagConstraints);
+
+        numberTextField.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        numberTextField.setText("639");
+        numberTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                numberTextFieldActionPerformed(evt);
+            }
+        });
+        numberTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                numberTextFieldKeyTyped(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.ipadx = 140;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        iNotification.add(numberTextField, gridBagConstraints);
+
+        jLabel31.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel31.setText("Message:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 50, 0, 0);
+        iNotification.add(jLabel31, gridBagConstraints);
+
+        messageTextArea.setColumns(20);
+        messageTextArea.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        messageTextArea.setRows(5);
+        jScrollPane13.setViewportView(messageTextArea);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
+        iNotification.add(jScrollPane13, gridBagConstraints);
+
+        bSend.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        bSend.setText("SEND");
+        bSend.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bSendActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 200;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weighty = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
+        iNotification.add(bSend, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.weighty = 0.1;
+        iNotification.add(filler3, gridBagConstraints);
+
+        jTabbedPane1.addTab("tab8", iNotification);
+
+        iDropout.setBackground(new java.awt.Color(255, 255, 255));
+        iDropout.setLayout(new java.awt.GridBagLayout());
+
+        tableDropout.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        tableDropout.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Student Id", "Student Name", "Sex", "Class Name", "Parent Number", "Qr Code Data", "Status"
+            }
+        ));
+        tableDropout.setRowHeight(30);
+        jScrollPane14.setViewportView(tableDropout);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 1663;
+        gridBagConstraints.ipady = 705;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(18, 6, 6, 2);
+        iDropout.add(jScrollPane14, gridBagConstraints);
+
+        jButton11.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        jButton11.setText("ACTIVE");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 18, 0, 0);
+        iDropout.add(jButton11, gridBagConstraints);
+
+        txtSearch6.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        txtSearch6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearch6ActionPerformed(evt);
+            }
+        });
+        txtSearch6.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSearch6KeyTyped(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 200;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 6, 0, 0);
+        iDropout.add(txtSearch6, gridBagConstraints);
+
+        jLabel32.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search/search.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 6, 0, 10);
+        iDropout.add(jLabel32, gridBagConstraints);
+
+        jLabel45.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel45.setText("SEARCH:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        iDropout.add(jLabel45, gridBagConstraints);
+
+        jTabbedPane1.addTab("tab13", iDropout);
+
         iSettings.setBackground(new java.awt.Color(255, 255, 255));
         iSettings.setLayout(new java.awt.GridBagLayout());
         jTabbedPane1.addTab("tab14", iSettings);
@@ -4998,7 +4608,7 @@ public class User extends javax.swing.JFrame {
         refreshData();
         jSettings.setBackground(new Color(0, 0, 102));
         bSettings.setBackground(new Color(0, 0, 102));
-        jTabbedPane1.setSelectedIndex(7);
+        jTabbedPane1.setSelectedIndex(3);
         jAttendance.setBackground(new Color(0, 0, 102));
         bAttendance.setBackground(new Color(0, 0, 102));
         jDropOut.setBackground(new Color(0, 0, 102));
@@ -5028,7 +4638,7 @@ public class User extends javax.swing.JFrame {
     private void BAssignTcMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BAssignTcMouseClicked
         // TODO add your handling code here:
         refreshData();
-        jTabbedPane1.setSelectedIndex(9);
+        jTabbedPane1.setSelectedIndex(7);
         jSettings.setBackground(new Color(0, 0, 102));
         bSettings.setBackground(new Color(0, 0, 102));
         jAttendance.setBackground(new Color(0, 0, 102));
@@ -5060,7 +4670,7 @@ public class User extends javax.swing.JFrame {
     private void BAssignSubMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BAssignSubMouseClicked
         // TODO add your handling code here:
         refreshData();
-        jTabbedPane1.setSelectedIndex(10);
+        jTabbedPane1.setSelectedIndex(6);
         jSettings.setBackground(new Color(0, 0, 102));
         bSettings.setBackground(new Color(0, 0, 102));
         jAttendance.setBackground(new Color(0, 0, 102));
@@ -5092,7 +4702,7 @@ public class User extends javax.swing.JFrame {
     private void BSubjectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BSubjectMouseClicked
         // TODO add your handling code here:
         refreshData();
-        jTabbedPane1.setSelectedIndex(8);
+        jTabbedPane1.setSelectedIndex(5);
         jSettings.setBackground(new Color(0, 0, 102));
         bSettings.setBackground(new Color(0, 0, 102));
         jAttendance.setBackground(new Color(0, 0, 102));
@@ -5124,7 +4734,7 @@ public class User extends javax.swing.JFrame {
     private void BQrCodeGenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BQrCodeGenMouseClicked
         // TODO add your handling code here:
         refreshData();
-        jTabbedPane1.setSelectedIndex(12);
+        jTabbedPane1.setSelectedIndex(9);
         jSettings.setBackground(new Color(0, 0, 102));
         bSettings.setBackground(new Color(0, 0, 102));
         jAttendance.setBackground(new Color(0, 0, 102));
@@ -5156,7 +4766,7 @@ public class User extends javax.swing.JFrame {
     private void BNotificationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BNotificationMouseClicked
         // TODO add your handling code here:
         refreshData();
-        jTabbedPane1.setSelectedIndex(5);
+        jTabbedPane1.setSelectedIndex(10);
         jSettings.setBackground(new Color(0, 0, 102));
         bSettings.setBackground(new Color(0, 0, 102));
         jAttendance.setBackground(new Color(0, 0, 102));
@@ -5188,7 +4798,7 @@ public class User extends javax.swing.JFrame {
     private void BReportsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BReportsMouseClicked
         // TODO add your handling code here:
         refreshData();
-        jTabbedPane1.setSelectedIndex(4);
+        jTabbedPane1.setSelectedIndex(8);
         jSettings.setBackground(new Color(0, 0, 102));
         bSettings.setBackground(new Color(0, 0, 102));
         jAttendance.setBackground(new Color(0, 0, 102));
@@ -5220,7 +4830,7 @@ public class User extends javax.swing.JFrame {
     private void BClassesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BClassesMouseClicked
         // TODO add your handling code here:
         refreshData();
-        jTabbedPane1.setSelectedIndex(3);
+        jTabbedPane1.setSelectedIndex(4);
         jSettings.setBackground(new Color(0, 0, 102));
         bSettings.setBackground(new Color(0, 0, 102));
         jAttendance.setBackground(new Color(0, 0, 102));
@@ -5725,179 +5335,6 @@ public class User extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jButton11ActionPerformed
-
-    private void txtSearchKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyTyped
-        // TODO add your handling code here:
-        DefaultTableModel ob = (DefaultTableModel) tableAccount.getModel();
-        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
-        tableAccount.setRowSorter(obj);
-        obj.setRowFilter(RowFilter.regexFilter(txtSearch.getText()));
-    }//GEN-LAST:event_txtSearchKeyTyped
-
-    private void contactnumberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contactnumberActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_contactnumberActionPerformed
-
-    private void mnameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnameActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_mnameActionPerformed
-
-    private void tableAccountMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableAccountMouseClicked
-        // TODO add your handling code here:
-        int selectedRow = tableAccount.getSelectedRow();
-
-        if (selectedRow >= 0) {
-            int userId = Integer.parseInt(tableAccount.getValueAt(selectedRow, 0).toString());
-            fetchUserData(userId);
-        }
-    }//GEN-LAST:event_tableAccountMouseClicked
-
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        // TODO add your handling code here:
-        int selectedRow = tableAccount.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(null, "Please select a user to delete.");
-            return;
-        }
-
-        int userId = Integer.parseInt(tableAccount.getValueAt(selectedRow, 0).toString());
-
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this user?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            String query = "DELETE FROM login_table WHERE user_id=?";
-
-            try {
-                con = Prototype.getConnection();
-                PreparedStatement pst = con.prepareStatement(query);
-                pst.setInt(1, userId);
-
-                int rowsDeleted = pst.executeUpdate();
-                if (rowsDeleted > 0) {
-                    JOptionPane.showMessageDialog(null, "User deleted successfully.");
-                }
-                loadUsersToTable();
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Error deleting user.");
-            }
-        }
-    }//GEN-LAST:event_btnDeleteActionPerformed
-
-    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        // TODO add your handling code here:
-        int selectedRow = tableAccount.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(null, "Please select a user to update.");
-            return;
-        }
-
-        int userId = Integer.parseInt(tableAccount.getValueAt(selectedRow, 0).toString());
-
-        String query = "UPDATE login_table SET firstname=?, middlename=?, lastname=?, gender=?, email=?, age=?, contact=?, username=?, password=?, role=? WHERE user_id=?";
-
-        try {
-            con = Prototype.getConnection();
-            PreparedStatement pst = con.prepareStatement(query);
-
-            pst.setString(1, fname.getText());
-            pst.setString(2, mname.getText());
-            pst.setString(3, lname.getText());
-            pst.setString(4, gend.getText());
-            pst.setString(5, em.getText());
-            pst.setInt(6, Integer.parseInt(ages.getText()));
-            pst.setString(7, contactnumber.getText());
-            pst.setString(8, user.getText());
-            pst.setString(9, pass.getText());
-            pst.setString(10, jComboRole.getSelectedItem().toString());
-            pst.setInt(11, userId);
-
-            int rowsUpdated = pst.executeUpdate();
-            if (rowsUpdated > 0) {
-                JOptionPane.showMessageDialog(null, "User updated successfully.");
-                loadUsersToTable();
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error updating user.");
-        }
-    }//GEN-LAST:event_btnUpdateActionPerformed
-
-    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-
-        try {
-            String firstname = fname.getText().trim();
-            String middlename = mname.getText().trim();
-            String lastname = lname.getText().trim();
-            String gender = gend.getText().trim();
-            String email = em.getText().trim();
-            String age = ages.getText().trim();
-            String contact = contactnumber.getText().trim();
-            String username = user.getText().trim();
-            String password = pass.getText().trim();
-            String role = jComboRole.getSelectedItem().toString().trim();
-
-            if (firstname.isEmpty() || lastname.isEmpty() || gender.isEmpty() || email.isEmpty() || age.isEmpty()
-                || contact.isEmpty() || username.isEmpty() || password.isEmpty() || role.isEmpty()) {
-                JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
-                return;
-            }
-
-            con = Prototype.getConnection();
-
-            String checkQuery = "SELECT COUNT(*) FROM login_table WHERE username = ? OR email = ? OR contact = ?";
-            PreparedStatement checkStmt = con.prepareStatement(checkQuery);
-            checkStmt.setString(1, username);
-            checkStmt.setString(2, email);
-            checkStmt.setString(3, contact);
-
-            ResultSet rs = checkStmt.executeQuery();
-            rs.next();
-            int count = rs.getInt(1);
-
-            if (count > 0) {
-                JOptionPane.showMessageDialog(rootPane, "Username, email, or contact already exists! Please use a different one.");
-                return;
-            }
-
-            pst = con.prepareStatement("INSERT INTO login_table (firstname, middlename, lastname, gender, email, age, contact, username, password, role) VALUES(?,?,?,?,?,?,?,?,?,?)");
-            pst.setString(1, firstname);
-            pst.setString(2, middlename);
-            pst.setString(3, lastname);
-            pst.setString(4, gender);
-            pst.setString(5, email);
-            pst.setString(6, age);
-            pst.setString(7, contact);
-            pst.setString(8, username);
-            pst.setString(9, password);
-            pst.setString(10, role);
-
-            int k = pst.executeUpdate();
-
-            if (k == 1) {
-                JOptionPane.showMessageDialog(rootPane, "Record added successfully!");
-
-                fname.setText("");
-                mname.setText("");
-                lname.setText("");
-                gend.setText("");
-                em.setText("");
-                ages.setText("");
-                contactnumber.setText("");
-                user.setText("");
-                pass.setText("");
-                jComboRole.setSelectedIndex(0);
-            } else {
-                JOptionPane.showMessageDialog(rootPane, "Record failed");
-            }
-
-            loadUsersToTable();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_btnAddActionPerformed
 
     private void bSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSendActionPerformed
         // TODO add your handling code here:
@@ -6458,12 +5895,12 @@ public class User extends javax.swing.JFrame {
 
     private void lblTotalTeachersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblTotalTeachersMouseClicked
         // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(7);
+        jTabbedPane1.setSelectedIndex(3);
     }//GEN-LAST:event_lblTotalTeachersMouseClicked
 
     private void lblInactiveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInactiveMouseClicked
         // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(11);
+        jTabbedPane1.setSelectedIndex(4);
     }//GEN-LAST:event_lblInactiveMouseClicked
 
     private void LOGOUTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LOGOUTMouseClicked
@@ -7506,23 +6943,19 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JTextField Tcfname;
     private javax.swing.JPanel TermsAndCondition;
     private javax.swing.JTextField TxtQrcode;
-    private javax.swing.JTextField ages;
     private javax.swing.JLabel bAttendance;
     private javax.swing.JLabel bDropOut;
     private javax.swing.JButton bSend;
     private javax.swing.JLabel bSettings;
-    private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnAdd1;
     private javax.swing.JButton btnAdd2;
     private javax.swing.JButton btnAdd3;
     private javax.swing.JButton btnAdd4;
-    private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnDelete1;
     private javax.swing.JButton btnDelete2;
     private javax.swing.JButton btnDelete3;
     private javax.swing.JButton btnDelete4;
     private javax.swing.JButton btnTimeOut;
-    private javax.swing.JButton btnUpdate;
     private javax.swing.JButton btnUpdate1;
     private javax.swing.JButton btnUpdate2;
     private javax.swing.JButton btnUpdate3;
@@ -7539,10 +6972,8 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cmbSubject;
     private javax.swing.JComboBox<String> cmbsubject1;
     private javax.swing.JComboBox<String> comboGrade;
-    private javax.swing.JTextField contactnumber;
     private com.toedter.calendar.JDateChooser dateChooserEndDate;
     private com.toedter.calendar.JDateChooser dateChooserFromDate;
-    private javax.swing.JTextField em;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler10;
     private javax.swing.Box.Filler filler11;
@@ -7561,8 +6992,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.Box.Filler filler7;
     private javax.swing.Box.Filler filler8;
     private javax.swing.Box.Filler filler9;
-    private javax.swing.JTextField fname;
-    private javax.swing.JTextField gend;
     private javax.swing.JPanel iAssignSub;
     private javax.swing.JPanel iAssignTc;
     private javax.swing.JPanel iAttendance;
@@ -7576,8 +7005,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JPanel iStudents;
     private javax.swing.JPanel iSubjects;
     private javax.swing.JPanel iTeachers;
-    private javax.swing.JPanel iUsers;
-    private javax.swing.JLabel jAge;
     private javax.swing.JPanel jAssignSub;
     private javax.swing.JPanel jAssignTc;
     private javax.swing.JPanel jAttendance;
@@ -7596,13 +7023,9 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
     private javax.swing.JPanel jClasses;
-    private javax.swing.JComboBox<String> jComboRole;
-    private javax.swing.JLabel jContact;
     private javax.swing.JPanel jDashboard;
     private javax.swing.JPanel jDropOut;
-    private javax.swing.JLabel jFirstname;
     private javax.swing.JLabel jFirstname1;
-    private javax.swing.JLabel jGender;
     private javax.swing.JLabel jGender1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -7637,8 +7060,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel39;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel42;
     private javax.swing.JLabel jLabel43;
@@ -7648,7 +7069,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel47;
     private javax.swing.JLabel jLabel48;
     private javax.swing.JLabel jLabel49;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel50;
     private javax.swing.JLabel jLabel51;
     private javax.swing.JLabel jLabel52;
@@ -7657,21 +7077,15 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JLabel jLastname;
     private javax.swing.JLabel jLastname1;
     private javax.swing.JPanel jLogout;
-    private javax.swing.JLabel jMiddlename;
     private javax.swing.JLabel jMiddlename1;
     private javax.swing.JPanel jNotification;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel9;
-    private javax.swing.JLabel jPassword;
     private javax.swing.JPanel jQrCodeGen;
     private javax.swing.JPanel jReports;
-    private javax.swing.JLabel jRole;
     private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane12;
     private javax.swing.JScrollPane jScrollPane13;
@@ -7679,7 +7093,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane15;
     private javax.swing.JScrollPane jScrollPane16;
     private javax.swing.JScrollPane jScrollPane17;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
@@ -7694,7 +7107,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JPanel jSubjects;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JPanel jTeachers;
-    private javax.swing.JLabel jUsername;
     private javax.swing.JLabel lblDateToday;
     private javax.swing.JLabel lblInactive;
     private javax.swing.JLabel lblQrData;
@@ -7703,13 +7115,9 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JLabel lblTimeNow;
     private javax.swing.JLabel lblTotalStudents;
     private javax.swing.JLabel lblTotalTeachers;
-    private javax.swing.JTextField lname;
     private javax.swing.JTextArea messageTextArea;
-    private javax.swing.JTextField mname;
     private javax.swing.JTextField numberTextField;
-    private javax.swing.JTextField pass;
     private javax.swing.JLabel qrCodeLabel;
-    private javax.swing.JTable tableAccount;
     private javax.swing.JTable tableAssignSub;
     private javax.swing.JTable tableAssignTeacher;
     private javax.swing.JTable tableAttendance;
@@ -7726,7 +7134,6 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JTextField txtNumber;
     private javax.swing.JLabel txtQrData;
     private javax.swing.JTextField txtSchoolYear;
-    private javax.swing.JTextField txtSearch;
     private javax.swing.JTextField txtSearch1;
     private javax.swing.JTextField txtSearch2;
     private javax.swing.JTextField txtSearch3;
@@ -7738,6 +7145,5 @@ public class User extends javax.swing.JFrame {
     private javax.swing.JTextField txtSection;
     private javax.swing.JTextField txtStatus;
     private javax.swing.JTextField txtStudentName;
-    private javax.swing.JTextField user;
     // End of variables declaration//GEN-END:variables
 }
