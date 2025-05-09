@@ -221,34 +221,32 @@ public class User extends javax.swing.JFrame {
         }
     }
 
-    private void sendSmsTimeOut(String parentNumber, String studentName) throws UnsupportedEncodingException {
-        String apiKey = "uHONgvqZ2HmmJ17SzvkKzIrn5eMSIR";
-        String apiSecret = "TIeSUMGwzJZUHvqnF22VMlkH3dXkq7";
+    private void sendSmsTimeOut(String parentNumber, String studentName) {
+        String apiToken = "de73dee5c2e1e19b2984f9eba3b0084e9adb82a1"; 
+        String apiUrl = "https://sms.iprogtech.com/api/v1/sms_messages?api_token=" + apiToken;
 
-        String message = "Hello, your child " + studentName + " has left the school.";
-
-        String encodedMessage = java.net.URLEncoder.encode(message, "UTF-8");
-
-        String requestUrl = "https://api.movider.co/v1/sms?api_key=" + apiKey
-                + "&api_secret=" + apiSecret
-                + "&to=" + parentNumber
-                + "&text=" + encodedMessage
-                + "&callback_url=https%3A%2F%2Fconsole.movider.co%2Fcampaign%2Fdashboard%2F"
-                + "&callback_method=GET";
+        String message = "Hello, your child " + studentName + " has left the classroom.";
 
         try {
+            
+            String jsonBody = String.format("""
+                {
+                    "phone_number": "%s",
+                    "message": "%s"
+                }
+                """, parentNumber, message);
 
+            
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(requestUrl))
-                    .header("accept", "application/json")
-                    .GET()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             logToDatabase(parentNumber, studentName, message, "sent");
-
             System.out.println("SMS Sent: " + response.body());
 
         } catch (java.net.ConnectException e) {
@@ -266,35 +264,30 @@ public class User extends javax.swing.JFrame {
         }
     }
 
-    private void sendSmsTimeIn(String parentNumber, String studentName) throws UnsupportedEncodingException {
-        String apiKey = "uHONgvqZ2HmmJ17SzvkKzIrn5eMSIR";
-        String apiSecret = "TIeSUMGwzJZUHvqnF22VMlkH3dXkq7";
+    private void sendSmsTimeIn(String parentNumber, String studentName) {
+        String apiToken = "de73dee5c2e1e19b2984f9eba3b0084e9adb82a1";
+        String apiUrl = "https://sms.iprogtech.com/api/v1/sms_messages?api_token=" + apiToken;
 
-        String message = "Hello, your child " + studentName + " has arrived at school.";
-
-        String encodedMessage = java.net.URLEncoder.encode(message, "UTF-8");
-
-        String requestUrl = "https://api.movider.co/v1/sms?api_key=" + apiKey
-                + "&api_secret=" + apiSecret
-                + "&to=" + parentNumber
-                + "&text=" + encodedMessage
-                + "&callback_url=https%3A%2F%2Fconsole.movider.co%2Fcampaign%2Fdashboard%2F"
-                + "&callback_method=GET";
+        String message = "Hello, your child " + studentName + " has arrived at classroom.";
 
         try {
+            String jsonBody = String.format("""
+                {
+                    "phone_number": "%s",
+                    "message": "%s"
+                }
+                """, parentNumber, message);
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(requestUrl))
-                    .header("accept", "application/json")
-                    .GET()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             logToDatabase(parentNumber, studentName, message, "sent");
-
-            System.out.println("SMS Sent: " + response.body());
 
         } catch (java.net.ConnectException e) {
             logToDatabase(parentNumber, studentName, message, "failed - no internet");
@@ -836,24 +829,22 @@ public class User extends javax.swing.JFrame {
         }
     }
 
-    private void sendSmsManual(String recipientNumber, String customMessage) throws UnsupportedEncodingException {
-        String apiKey = "uHONgvqZ2HmmJ17SzvkKzIrn5eMSIR";
-        String apiSecret = "TIeSUMGwzJZUHvqnF22VMlkH3dXkq7";
-
-        String encodedMessage = java.net.URLEncoder.encode(customMessage, "UTF-8");
-
-        String requestUrl = "https://api.movider.co/v1/sms?api_key=" + apiKey
-                + "&api_secret=" + apiSecret
-                + "&to=" + recipientNumber
-                + "&text=" + encodedMessage
-                + "&callback_url=https%3A%2F%2Fconsole.movider.co%2Fcampaign%2Fdashboard%2F"
-                + "&callback_method=GET";
+    private void sendSmsManual(String recipientNumber, String customMessage) {
+        String apiToken = "de73dee5c2e1e19b2984f9eba3b0084e9adb82a1"; 
+        String apiUrl = "https://sms.iprogtech.com/api/v1/sms_messages?api_token=" + apiToken;
 
         try {
+            String jsonBody = String.format("""
+                {
+                    "phone_number": "%s",
+                    "message": "%s"
+                }
+                """, recipientNumber, customMessage);
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(requestUrl))
-                    .header("accept", "application/json")
-                    .GET()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
@@ -5351,12 +5342,8 @@ public class User extends javax.swing.JFrame {
             return;
         }
 
-        try {
-            sendSmsManual(number, message);
-            loadSMSLogsToTable1();
-        } catch (UnsupportedEncodingException ex) {
-            ex.printStackTrace();
-        }
+        sendSmsManual(number, message);
+        loadSMSLogsToTable1();
     }//GEN-LAST:event_bSendActionPerformed
 
     private void numberTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numberTextFieldKeyTyped
@@ -5862,7 +5849,7 @@ public class User extends javax.swing.JFrame {
 
             lblStatus.setText("Time out updated successfully!");
 
-        } catch (SQLException | UnsupportedEncodingException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnTimeOutActionPerformed
