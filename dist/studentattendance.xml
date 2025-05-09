@@ -16,7 +16,7 @@
   <icon>C:\Users\Wisss\Documents\NetBeansProjects\StudAttSystem\icon\logo.ico</icon>
   <jre>
     <path>%JAVA_HOME%;%PATH%</path>
-    <requiresJdk>true</requiresJdk>
+    <requiresJdk>false</requiresJdk>
     <requires64Bit>false</requires64Bit>
     <minVersion>1.4.0</minVersion>
     <maxVersion></maxVersion>

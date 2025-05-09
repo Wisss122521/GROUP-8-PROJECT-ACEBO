@@ -5,7 +5,7 @@ CmdLine:	C:\Users\Wisss\Documents\NetBeansProjects\StudAttSystem\dist\Student At
 JNI:		No
 WOW64:		Yes
 Working dir:	C:\Users\Wisss\Documents\NetBeansProjects\StudAttSystem\dist\.
-Requires JDK:	Yes
+Requires JDK:	No
 Requires 64-Bit: No
 Java min ver:	1.004.000
 Java max ver:	
@@ -13,7 +13,6 @@ Substitute:	JAVA_HOME = C:\Program Files\Java\jdk-23
 Substitute:	PATH = C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA app\NvDLISR;C:\xampp\php;C:\Program Files\Java\jdk-23\bin;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Users\Wisss\AppData\Local\Microsoft\WindowsApps;C:\Users\Wisss\AppData\Local\spicetify;E:\Microsoft VS Code\bin;C:\xampp\php;C:\Program Files\Java\jdk-23\bin;;C:\Program Files\Java\jdk-23\bin
 JRE paths:	C:\Program Files\Java\jdk-23;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA app\NvDLISR;C:\xampp\php;C:\Program Files\Java\jdk-23\bin;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Users\Wisss\AppData\Local\Microsoft\WindowsApps;C:\Users\Wisss\AppData\Local\spicetify;E:\Microsoft VS Code\bin;C:\xampp\php;C:\Program Files\Java\jdk-23\bin;;C:\Program Files\Java\jdk-23\bin
 Check launcher:	C:\Program Files\Java\jdk-23\bin\javaw.exe (OK)
-Check javac:	C:\Program Files\Java\jdk-23\bin\javac.exe (OK)
 Version string: 1.023.000_002 / 64-Bit (OK)
 Launcher:	C:\Program Files\Java\jdk-23\bin\javaw.exe
 Launcher args:	-jar "C:\Users\Wisss\Documents\NetBeansProjects\StudAttSystem\dist\Student Attendance Monitoring.exe"

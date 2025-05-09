@@ -5000,7 +5000,7 @@ public class User extends javax.swing.JFrame {
                                "FROM inactive_students " +
                                "WHERE students_id LIKE ? OR students_name LIKE ? OR parent_contact_number LIKE ? " +
                                "OR class_name LIKE ? OR qr_code_data LIKE ? " +
-                               (isGenderSearch ? "OR gender = ?" : "OR gender LIKE ?");
+                               (isGenderSearch ? "OR gender = ?" : "OR gender LIKE ? ORDER BY gender DESC, students_name ASC");
 
                 pst = con.prepareStatement(query);
                 pst.setString(1, "%" + sid + "%");
@@ -5212,7 +5212,7 @@ public class User extends javax.swing.JFrame {
                                "FROM inactive_students " +
                                "WHERE students_id LIKE ? OR students_name LIKE ? OR parent_contact_number LIKE ? " +
                                "OR class_name LIKE ? OR qr_code_data LIKE ? " +
-                               (isGenderSearch ? "OR gender = ?" : "OR gender LIKE ?");
+                               (isGenderSearch ? "OR gender = ?" : "OR gender LIKE ? ORDER BY gender DESC, students_name ASC");
 
                 pst = con.prepareStatement(query);
                 pst.setString(1, "%" + sid + "%");
@@ -5465,7 +5465,7 @@ public class User extends javax.swing.JFrame {
                                "FROM students s JOIN classes c ON s.class_id = c.class_id " +
                                "WHERE s.students_id LIKE ? OR s.students_name LIKE ? " +
                                (isGenderSearch ? "OR s.gender = ? " : "OR s.gender LIKE ? ") +
-                               "OR c.class_name LIKE ? OR s.parent_contact_number LIKE ? OR s.qr_code_data LIKE ? OR s.status LIKE ?";
+                               "OR c.class_name LIKE ? OR s.parent_contact_number LIKE ? OR s.qr_code_data LIKE ? OR s.status LIKE ? ORDER BY s.gender DESC, s.students_name ASC";
 
                 pst = con.prepareStatement(query);
                 pst.setString(1, "%" + sid + "%");
@@ -5580,21 +5580,47 @@ public class User extends javax.swing.JFrame {
 
         int students_id = Integer.parseInt(tableStudent.getValueAt(selectedRow, 0).toString());
 
-        String className = cmbClassId.getSelectedItem().toString();
+        String fullname = txtFname.getText().trim();
         String gender = cmbGender.getSelectedItem().toString();
+        String className = cmbClassId.getSelectedItem().toString();
+        String number = txtNumber.getText().trim();
+        String qrCodeData = txtQrData.getText().trim();
+
         int classId = getClassIdForName(className);
 
-        String query = "UPDATE students SET students_name=?, gender=?, class_id=?, parent_contact_number=?, qr_code_data=? WHERE students_id=?";
+        
+        if (fullname.isEmpty() || gender.equals("SELECT SEX") || className.isEmpty() || number.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No input! Please fill in all fields.");
+            return;
+        }
+
+        if (!number.matches("\\d{12}")) {
+            JOptionPane.showMessageDialog(null, "Invalid number! Enter exactly 12 digits.", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         try {
             con = Prototype.getConnection();
-            PreparedStatement pst = con.prepareStatement(query);
 
-            pst.setString(1, txtFname.getText());
-            pst.setString(2, cmbGender.getSelectedItem().toString());
+            String checkQuery = "SELECT * FROM students WHERE students_name = ? AND class_id = ? AND students_id != ?";
+            pst = con.prepareStatement(checkQuery);
+            pst.setString(1, fullname);
+            pst.setInt(2, classId);
+            pst.setInt(3, students_id);
+
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                JOptionPane.showMessageDialog(null, "Student already exists in this class.");
+                return;
+            }
+
+            String updateQuery = "UPDATE students SET students_name=?, gender=?, class_id=?, parent_contact_number=?, qr_code_data=? WHERE students_id=?";
+            pst = con.prepareStatement(updateQuery);
+            pst.setString(1, fullname);
+            pst.setString(2, gender);
             pst.setInt(3, classId);
-            pst.setString(4, txtNumber.getText());
-            pst.setString(5, txtQrData.getText());
+            pst.setString(4, number);
+            pst.setString(5, qrCodeData);
             pst.setInt(6, students_id);
 
             int rowsUpdated = pst.executeUpdate();
@@ -5614,61 +5640,60 @@ public class User extends javax.swing.JFrame {
     private void btnAdd1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd1ActionPerformed
         // TODO add your handling code here:
         try {
-    String fullname = txtFname.getText().trim();
-    String gender = cmbGender.getSelectedItem().toString();
-    String className = cmbClassId.getSelectedItem().toString();
-    String number = txtNumber.getText().trim();
+            String fullname = txtFname.getText().trim();
+            String gender = cmbGender.getSelectedItem().toString();
+            String className = cmbClassId.getSelectedItem().toString();
+            String number = txtNumber.getText().trim();
 
-    int classId = getClassIdForName(className);
+            int classId = getClassIdForName(className);
 
-    if (!number.matches("\\d{12}")) {
-        JOptionPane.showMessageDialog(null, "Invalid number! Enter exactly 12 digits.", "Input Error", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+            if (!number.matches("\\d{12}")) {
+                JOptionPane.showMessageDialog(null, "Invalid number! Enter exactly 12 digits.", "Input Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-    if (fullname.isEmpty() || className.isEmpty() || gender.equals("SELECT SEX") || number.isEmpty()) {
-        JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
-        return;
-    }
+            if (fullname.isEmpty() || className.isEmpty() || gender.equals("SELECT SEX") || number.isEmpty()) {
+                JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
+                return;
+            }
 
-    con = Prototype.getConnection();
+            con = Prototype.getConnection();
 
-    // Duplication check by student name and class ID
-    pst = con.prepareStatement("SELECT * FROM students WHERE students_name = ? AND class_id = ?");
-    pst.setString(1, fullname);
-    pst.setInt(2, classId);
-    ResultSet rs = pst.executeQuery();
+            
+            pst = con.prepareStatement("SELECT * FROM students WHERE students_name = ? AND class_id = ?");
+            pst.setString(1, fullname);
+            pst.setInt(2, classId);
+            ResultSet rs = pst.executeQuery();
 
-    if (rs.next()) {
-        JOptionPane.showMessageDialog(rootPane, "Student already exists in this class.");
-        return;
-    }
+            if (rs.next()) {
+                JOptionPane.showMessageDialog(rootPane, "Student already exists in this class.");
+                return;
+            }
 
-    // Proceed with insertion
-    pst = con.prepareStatement("INSERT INTO students (students_name, gender, class_id, parent_contact_number) VALUES(?,?,?,?)");
-    pst.setString(1, fullname);
-    pst.setString(2, gender);
-    pst.setInt(3, classId);
-    pst.setString(4, number);
+            
+            pst = con.prepareStatement("INSERT INTO students (students_name, gender, class_id, parent_contact_number) VALUES(?,?,?,?)");
+            pst.setString(1, fullname);
+            pst.setString(2, gender);
+            pst.setInt(3, classId);
+            pst.setString(4, number);
 
-    int k = pst.executeUpdate();
+            int k = pst.executeUpdate();
 
-    if (k == 1) {
-        JOptionPane.showMessageDialog(rootPane, "Record successfully added.");
-        txtFname.setText("");
-        cmbGender.setSelectedIndex(0);
-        cmbClassId.setSelectedIndex(0);
-        txtNumber.setText("639");
-        totalstudents();
-    } else {
-        JOptionPane.showMessageDialog(rootPane, "Record failed.");
-    }
+            if (k == 1) {
+                JOptionPane.showMessageDialog(rootPane, "Record successfully added.");
+                txtFname.setText("");
+                cmbGender.setSelectedIndex(0);
+                cmbClassId.setSelectedIndex(0);
+                txtNumber.setText("639");
+                totalstudents();
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "Record failed.");
+            }
 
-    loadStudentsToTable();
-} catch (SQLException ex) {
-    Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
-}
-
+            loadStudentsToTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnAdd1ActionPerformed
 
     private void cboxclassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboxclassActionPerformed
@@ -5939,7 +5964,7 @@ public class User extends javax.swing.JFrame {
             parameters.add(txtStatus.getText().trim());
         }
 
-        // >>> ITO ANG INADAGDAG KO PARA SA SORTING
+        
         query += " ORDER BY gender DESC, students_name ASC";
 
         try {
@@ -6039,21 +6064,34 @@ public class User extends javax.swing.JFrame {
     private void btnAdd4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd4ActionPerformed
         // TODO add your handling code here:
         try {
-            
             String grade = comboGrade.getSelectedItem().toString();      
             String section = txtSection.getText().trim().toUpperCase();  
             String schoolYear = txtSchoolYear.getText().trim();          
 
-            
             if (grade.isEmpty() || section.isEmpty() || schoolYear.isEmpty()) {
                 JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
                 return;
             }
 
-            
             String fullname = "GRADE " + grade + " - " + section + " - SY. " + schoolYear;
 
             con = Prototype.getConnection();
+
+            
+            String checkQuery = "SELECT COUNT(*) FROM classes WHERE class_name = ?";
+            PreparedStatement checkStmt = con.prepareStatement(checkQuery);
+            checkStmt.setString(1, fullname);
+
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
+
+            if (count > 0) {
+                JOptionPane.showMessageDialog(rootPane, "Class already exists.");
+                return;
+            }
+
+            
             pst = con.prepareStatement("INSERT INTO classes (class_name) VALUES(?)");
             pst.setString(1, fullname);
 
@@ -6096,12 +6134,27 @@ public class User extends javax.swing.JFrame {
 
         String className = "GRADE " + grade + " - " + section + " - SY. " + schoolYear;
 
-        String query = "UPDATE classes SET class_name=? WHERE class_id=?";
-
         try {
             con = Prototype.getConnection();
-            PreparedStatement pst = con.prepareStatement(query);
 
+            
+            String checkQuery = "SELECT COUNT(*) FROM classes WHERE class_name = ? AND class_id != ?";
+            PreparedStatement checkStmt = con.prepareStatement(checkQuery);
+            checkStmt.setString(1, className);
+            checkStmt.setInt(2, class_id);
+
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
+
+            if (count > 0) {
+                JOptionPane.showMessageDialog(null, "Duplicate class name found.");
+                return;
+            }
+
+            
+            String updateQuery = "UPDATE classes SET class_name=? WHERE class_id=?";
+            PreparedStatement pst = con.prepareStatement(updateQuery);
             pst.setString(1, className);
             pst.setInt(2, class_id);
 
@@ -6344,21 +6397,41 @@ public class User extends javax.swing.JFrame {
         // TODO add your handling code here:
         int selectedRow = TableTeachers.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(null, "Please select a teachers to update.");
+            JOptionPane.showMessageDialog(null, "Please select a teacher to update.");
             return;
         }
 
         int teacher_id = Integer.parseInt(TableTeachers.getValueAt(selectedRow, 0).toString());
+        String teacherName = Tcfname.getText().trim();
         String gender = cmbGender3.getSelectedItem().toString();
 
-        String query = "UPDATE teachers SET teacher_name=?, gender=? WHERE teacher_id=?";
+        if (teacherName.isEmpty() || gender.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No input! Please fill in all fields.");
+            return;
+        }
 
         try {
             con = Prototype.getConnection();
+
+            String checkQuery = "SELECT COUNT(*) FROM teachers WHERE teacher_name = ? AND teacher_id != ?";
+            PreparedStatement checkStmt = con.prepareStatement(checkQuery);
+            checkStmt.setString(1, teacherName);
+            checkStmt.setInt(2, teacher_id);
+
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
+
+            if (count > 0) {
+                JOptionPane.showMessageDialog(null, "Duplicate teacher name found.");
+                return;
+            }
+
+            String query = "UPDATE teachers SET teacher_name=?, gender=? WHERE teacher_id=?";
             PreparedStatement pst = con.prepareStatement(query);
 
-            pst.setString(1, Tcfname.getText());
-            pst.setString(2, cmbGender3.getSelectedItem().toString());
+            pst.setString(1, teacherName);
+            pst.setString(2, gender);
             pst.setInt(3, teacher_id);
 
             int rowsUpdated = pst.executeUpdate();
@@ -6447,30 +6520,44 @@ public class User extends javax.swing.JFrame {
     private void btnAdd3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd3ActionPerformed
         // TODO add your handling code here:
         try {
-            String subjectname = Subjectname.getText();
-
-            con = Prototype.getConnection();
-            pst = con.prepareStatement("INSERT INTO subject (subject_name) VALUES(?)");
-            pst.setString(1,subjectname);
+            String subjectname = Subjectname.getText().trim();
 
             if (subjectname.isEmpty()) {
-
                 JOptionPane.showMessageDialog(rootPane, "No input! Please fill in all fields.");
                 return;
             }
 
-            int k = pst.executeUpdate();
+            con = Prototype.getConnection();
 
-            if (k==1){
-                JOptionPane.showMessageDialog(rootPane,"Record successfully");
-                Subjectname.setText("");
-            }else{
-                JOptionPane.showMessageDialog(rootPane,"Record failed");
+            
+            PreparedStatement checkStmt = con.prepareStatement("SELECT COUNT(*) FROM subject WHERE subject_name = ?");
+            checkStmt.setString(1, subjectname);
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
+
+            if (count > 0) {
+                JOptionPane.showMessageDialog(rootPane, "Subject already exists.");
+                return;
             }
 
-            loadSubjectToTable();
+            
+            pst = con.prepareStatement("INSERT INTO subject (subject_name) VALUES(?)");
+            pst.setString(1, subjectname);
+
+            int k = pst.executeUpdate();
+
+            if (k == 1) {
+                JOptionPane.showMessageDialog(rootPane, "Record successfully added.");
+                Subjectname.setText("");
+                loadSubjectToTable();
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "Record failed to add.");
+            }
+
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(rootPane, "Database error occurred.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAdd3ActionPerformed
 
@@ -6482,21 +6569,44 @@ public class User extends javax.swing.JFrame {
             return;
         }
 
-        int students_id = Integer.parseInt(tableSubject.getValueAt(selectedRow, 0).toString());
+        int subject_id = Integer.parseInt(tableSubject.getValueAt(selectedRow, 0).toString());
+        String newSubjectName = Subjectname.getText().trim();
 
-        String query = "UPDATE subject SET subject_name=? WHERE subject_id=?";
+        if (newSubjectName.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No input! Please fill in all fields.");
+            return;
+        }
 
         try {
             con = Prototype.getConnection();
-            PreparedStatement pst = con.prepareStatement(query);
 
-            pst.setString(1, Subjectname.getText());
-            pst.setInt(2, students_id);
+            String checkQuery = "SELECT COUNT(*) FROM subject WHERE subject_name = ? AND subject_id != ?";
+            PreparedStatement checkStmt = con.prepareStatement(checkQuery);
+            checkStmt.setString(1, newSubjectName);
+            checkStmt.setInt(2, subject_id);
+
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
+
+            if (count > 0) {
+                JOptionPane.showMessageDialog(null, "Subject name already exists.");
+                return;
+            }
+
+            
+            String updateQuery = "UPDATE subject SET subject_name=? WHERE subject_id=?";
+            PreparedStatement pst = con.prepareStatement(updateQuery);
+            pst.setString(1, newSubjectName);
+            pst.setInt(2, subject_id);
 
             int rowsUpdated = pst.executeUpdate();
             if (rowsUpdated > 0) {
                 JOptionPane.showMessageDialog(null, "Subject updated successfully.");
                 loadSubjectToTable();
+                Subjectname.setText("");
+            } else {
+                JOptionPane.showMessageDialog(null, "Update failed.");
             }
 
         } catch (SQLException e) {
