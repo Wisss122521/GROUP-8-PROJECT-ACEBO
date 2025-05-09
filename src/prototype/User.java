@@ -5444,7 +5444,7 @@ public class User extends javax.swing.JFrame {
         int selectedRow = tableWithoutQR.getSelectedRow();
 
         if (selectedRow != -1) {
-            String studentName = tableWithoutQR.getValueAt(selectedRow, 1).toString(); // Column 1 = Student Name
+            String studentName = tableWithoutQR.getValueAt(selectedRow, 1).toString(); 
             lblQrData.setText(studentName);
             qrCodeLabel.setIcon(null);
         }
@@ -5455,7 +5455,7 @@ public class User extends javax.swing.JFrame {
         int row = tableWithQR.getSelectedRow();
         if (row != -1) {
 
-            String qrCodeData = tableWithQR.getValueAt(row, 4).toString();
+            String qrCodeData = tableWithQR.getValueAt(row, 5).toString();
 
             String studentName = tableWithQR.getValueAt(row, 1).toString();
             lblQrData.setText(studentName);
