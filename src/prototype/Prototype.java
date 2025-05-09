@@ -19,7 +19,7 @@ public class Prototype {
     public static Connection getConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://sql309.infinityfree.com:3306/if0_38840252_studentattendanceif0_38840252_studentattendance","if0_38840252","uHpBU8l1NF5");           
+            con = DriverManager.getConnection("jdbc:mysql://localhost:4306/studentattendance","root","");           
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Prototype.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
