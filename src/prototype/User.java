@@ -247,7 +247,6 @@ public class User extends javax.swing.JFrame {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             logToDatabase(parentNumber, studentName, message, "sent");
-            System.out.println("SMS Sent: " + response.body());
 
         } catch (java.net.ConnectException e) {
             logToDatabase(parentNumber, studentName, message, "failed - no internet");
